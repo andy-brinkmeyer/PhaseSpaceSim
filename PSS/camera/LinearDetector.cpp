@@ -1,14 +1,18 @@
 #include "LinearDetector.h"
 
+#include <stdexcept>
+
 #include <Eigen/Eigen>
 #include <gtsam/geometry/Pose3.h>
+#include <gtsam/geometry/Point3.h>
 
 
 namespace PSS {
 	// contructors
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, gtsam::Pose3 pose) {
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3 &pose) {
 		mFocalLength = focalLength;
 		mCenterOffset = centerOffset;
+		mSensorWidth = sensorWidth;
 		mPose = pose;
 
 		// create the individual camera matrices
@@ -34,7 +38,21 @@ namespace PSS {
 	LinearDetector::ProjectionMatrix LinearDetector::projectionMatrix() { return mProjectionMatrix; }
 
 	// projection
-	double projectPoint() {
-		return 1.0;
+	double LinearDetector::projectPoint(gtsam::Point3 &point) {
+		Eigen::Matrix<double, 4, 1> pointH{ point.homogeneous() };
+		Eigen::Matrix<double, 2, 1> projectedH{ mProjectionMatrix * pointH };
+		return projectedH.hnormalized()(0,0);
+	}
+
+	double LinearDetector::safeProjectPoint(gtsam::Point3 &point) {
+		// transform the point to camera frame
+		gtsam::Point3 pointCamera{ mPose.transformTo(point) };
+		
+		// check if it is in front of the camera
+		if (pointCamera.z() < 0) {
+			throw domain_error("Point lies behind the linear detector.");
+		}
+
+		return projectPoint(point);
 	}
 }

@@ -3,7 +3,6 @@
 # create targets
 add_library(PSS_lib STATIC
 	"camera/LinearDetector.h" "camera/LinearDetector.cpp"
-	"geometry/Homogeneous.h"
 	)
 set_target_properties(PSS_lib PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(PSS_lib PUBLIC ${GTSAM_INCLUDE_DIR} ${Eigen_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
