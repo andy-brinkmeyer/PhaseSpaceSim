@@ -25,6 +25,7 @@ TEST(LinearDetectorTest, GettersTest) {
 
 	// check getters
 	ASSERT_EQ(linDetector.focalLength(), focalLength);
+	ASSERT_EQ(linDetector.sensorWidth(), sensorWidth);
 	ASSERT_EQ(linDetector.centerOffset(), centerOffset);
 
 	ASSERT_EQ(linDetector.pose().translation(), position);
@@ -33,6 +34,16 @@ TEST(LinearDetectorTest, GettersTest) {
 	Eigen::Matrix<double, 2, 4> projMatrix;
 	projMatrix << 0.075, 0, 0.1, -0.3750, 0, 0, 1, -3.0;
 	ASSERT_TRUE(projMatrix.isApprox(linDetector.projectionMatrix()));
+	ASSERT_TRUE(projMatrix.isApprox(linDetector.calibratedProjectionMatrix()));
+
+	// test with calibratedPose
+	gtsam::Point3 calibratedPosition{ 2.0, 2.0, 3.0 };
+	gtsam::Pose3 calibratedPose{ rotation, calibratedPosition };
+	PSS::LinearDetector calibratedLinDetector{ focalLength, centerOffset, sensorWidth, pose, calibratedPose };
+
+	Eigen::Matrix<double, 2, 4> calibratedProjMatrix;
+	calibratedProjMatrix << 0.075, 0, 0.1, -0.450, 0, 0, 1, -3.0;
+	ASSERT_TRUE(calibratedProjMatrix.isApprox(calibratedLinDetector.calibratedProjectionMatrix()));
 }
 
 TEST(LinearDetectorTest, ProjectionTest) {
@@ -55,6 +66,14 @@ TEST(LinearDetectorTest, ProjectionTest) {
 	ASSERT_TRUE(delta < epsilon);
 
 	// check safe projection
+	// check point behind camera
 	point(2, 0) = 2.0;
+	ASSERT_THROW(linDetector.safeProjectPoint(point), std::domain_error);
+
+	// check point outside of sensor range
+	point(2, 0) = 4.0;
+	point(0, 0) = -10.0;
+	ASSERT_THROW(linDetector.safeProjectPoint(point), std::domain_error);
+	point(0, 0) = 10.0;
 	ASSERT_THROW(linDetector.safeProjectPoint(point), std::domain_error);
 }
