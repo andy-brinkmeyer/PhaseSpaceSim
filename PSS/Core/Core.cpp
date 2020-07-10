@@ -2,15 +2,15 @@
 
 #include "../camera/Camera.h"
 
-#include <vector>
+#include <map>
 
 
 namespace PSS {
 	// constructors
-	Core::Core(std::vector<Camera>& cameras) {
+	Core::Core(std::map<string, Camera>& cameras) {
 		mCameras = cameras;
 	}
 
 	// getters
-	std::vector<Camera>& Core::cameras() { return mCameras; };
+	std::map<string, Camera>& Core::cameras() { return mCameras; };
 }

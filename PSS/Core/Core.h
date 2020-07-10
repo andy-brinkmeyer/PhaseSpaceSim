@@ -2,19 +2,24 @@
 
 #include "../camera/Camera.h"
 
-#include <vector>
+#include <gtsam/geometry/Point3.h>
+
+#include <map>
 
 
 namespace PSS {
 	class Core {
 	public:
 		// cosntructors
-		Core(std::vector<Camera>& cameras);
+		Core(std::map<string, Camera>& cameras);
 
 		// getters
-		std::vector<Camera>& cameras();
+		std::map<string, Camera>& cameras();
+
+		// estimation
+		gtsam::Point3& estimateFromPoint(gtsam::Point3& point);
 
 	private:
-		std::vector<Camera> mCameras;
+		std::map<string, Camera> mCameras;
 	};
 }

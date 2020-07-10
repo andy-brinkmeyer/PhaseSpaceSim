@@ -50,7 +50,7 @@ namespace PSS {
 	double LinearDetector::projectPoint(gtsam::Point3 &point) {
 		Eigen::Matrix<double, 4, 1> pointH{ point.homogeneous() };
 		Eigen::Matrix<double, 2, 1> projectedH{ mProjectionMatrix * pointH };
-		return projectedH.hnormalized()(0, 0);
+		return projectedH.hnormalized()(0,0);
 	}
 
 	double LinearDetector::safeProjectPoint(gtsam::Point3 &point) {
