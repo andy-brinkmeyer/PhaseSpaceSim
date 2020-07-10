@@ -1,7 +1,10 @@
 cmake_minimum_required (VERSION 3.8)
 
 # add the test target
-add_executable(PSS_test "LinearDetectorTest.cpp")
+add_executable(PSS_test 
+"LinearDetectorTest.cpp" 
+"CameraTest.cpp"
+)
 target_include_directories(PSS_test PUBLIC
 	${PSS_INCLUDE_DIR}
 	${GTEST_INCLUDE_DIR}

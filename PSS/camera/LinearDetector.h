@@ -21,9 +21,9 @@ namespace PSS {
 		double focalLength();
 		double sensorWidth();
 		double centerOffset();
-		gtsam::Pose3 pose();
-		ProjectionMatrix projectionMatrix();
-		ProjectionMatrix calibratedProjectionMatrix();
+		gtsam::Pose3& pose();
+		ProjectionMatrix& projectionMatrix();
+		ProjectionMatrix& calibratedProjectionMatrix();
 
 		// projection
 		double projectPoint(gtsam::Point3 &point);

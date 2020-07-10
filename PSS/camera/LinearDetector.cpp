@@ -1,6 +1,7 @@
 #include "LinearDetector.h"
 
 #include <stdexcept>
+#include <cmath>
 
 #include <boost/none.hpp>
 #include <boost/optional.hpp>
@@ -12,14 +13,16 @@
 namespace PSS {
 	// contructors
 	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, gtsam::Pose3& pose) {
-		double focalLength{ sensorWidth / (2 * std::tan(0.5 * fieldOfView)) };
+		double fovRad{ fieldOfView * M_PI / 180 };
+		double focalLength{ sensorWidth / (2 * std::tan(0.5 * fovRad)) };
 		double centerOffset = 0.5 * sensorWidth;
 		boost::optional<gtsam::Pose3> optionalCalibratedPose;
 		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
 	}
 
 	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose) {
-		double focalLength{ sensorWidth / (2 * std::tan(0.5 * fieldOfView)) };
+		double fovRad{ fieldOfView * M_PI / 180 };
+		double focalLength{ sensorWidth / (2 * std::tan(0.5 * fovRad)) };
 		double centerOffset = 0.5 * sensorWidth;
 		boost::optional<gtsam::Pose3> optionalCalibratedPose{ calibratedPose };
 		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
@@ -39,9 +42,9 @@ namespace PSS {
 	double LinearDetector::focalLength() { return mFocalLength; }
 	double LinearDetector::sensorWidth() { return mSensorWidth; }
 	double LinearDetector::centerOffset() { return mCenterOffset; }
-	gtsam::Pose3 LinearDetector::pose() { return mPose; }
-	LinearDetector::ProjectionMatrix LinearDetector::projectionMatrix() { return mProjectionMatrix; }
-	LinearDetector::ProjectionMatrix LinearDetector::calibratedProjectionMatrix() { return mCalibratedProjectionMatrix; }
+	gtsam::Pose3& LinearDetector::pose() { return mPose; }
+	LinearDetector::ProjectionMatrix& LinearDetector::projectionMatrix() { return mProjectionMatrix; }
+	LinearDetector::ProjectionMatrix& LinearDetector::calibratedProjectionMatrix() { return mCalibratedProjectionMatrix; }
 
 	// projection
 	double LinearDetector::projectPoint(gtsam::Point3 &point) {

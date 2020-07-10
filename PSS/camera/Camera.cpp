@@ -15,6 +15,11 @@ namespace PSS {
 	// constructors
 	Camera::Camera(LinearDetector& horizontalDetector, LinearDetector& verticalDetector) : mHorizontalDetector{ horizontalDetector }, mVerticalDetector{ verticalDetector } { }
 
+	Camera::Camera(double fieldOfView, double sensorWidth, gtsam::Pose3& pose) : mHorizontalDetector{ fieldOfView, sensorWidth, pose }, mVerticalDetector{ fieldOfView, sensorWidth, rotateToVertical(pose) } { }
+
+	Camera::Camera(double fieldOfView, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose) 
+		: mHorizontalDetector{ fieldOfView, sensorWidth, pose, calibratedPose }, mVerticalDetector{ fieldOfView, sensorWidth, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
+
 	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose)
 		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, pose },
 		  mVerticalDetector{ focalLength, centerOffset, sensorWidth, rotateToVertical(pose) } { }
@@ -22,6 +27,10 @@ namespace PSS {
 	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose) 
 		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, pose, calibratedPose },
 		  mVerticalDetector{ focalLength, centerOffset, sensorWidth, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
+
+	// getters
+	LinearDetector& Camera::horizontalDetector() { return mHorizontalDetector; }
+	LinearDetector& Camera::verticalDetector() { return mVerticalDetector; }
 
 	// helper functions
 	gtsam::Pose3 Camera::rotateToVertical(gtsam::Pose3& pose) {

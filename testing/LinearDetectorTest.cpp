@@ -11,6 +11,23 @@
 #include <gtsam/geometry/Point3.h>
 
 
+TEST(LinearDetectorTest, FOVConstructorTest) {
+	gtsam::Point3 position{ 1.0, 2.0, 3.0 };
+	gtsam::Rot3 rotation{ 1.0, 0.0, 0.0, 0.0 };
+	gtsam::Pose3 pose{ rotation, position };
+
+	double fieldOfView{ 90.0 };
+	double sensorWidth{ 0.1 };
+
+	PSS::LinearDetector linDetector{ fieldOfView, sensorWidth, pose };
+
+	// check if the focal length was computed correctly
+	double expectedFocalLength{ 0.05 };
+	double delta{ std::abs(expectedFocalLength - linDetector.focalLength()) };
+	double epsilon{ 0.000001 };
+	ASSERT_TRUE(delta < epsilon);
+}
+
 TEST(LinearDetectorTest, GettersTest) {
 	// create linear detector
 	gtsam::Point3 position{ 1.0, 2.0, 3.0 };
