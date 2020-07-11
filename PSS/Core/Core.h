@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <exception>
 
 
 namespace PSS {
@@ -23,5 +24,15 @@ namespace PSS {
 
 	private:
 		std::unordered_map<std::string, Camera> mCameras;
+	};
+
+	class UnderdeterminedSystem : public std::exception {
+	public:
+		UnderdeterminedSystem(const std::string& msg);
+
+		virtual const char* what() const throw ();
+
+	private:
+		std::string mMsg;
 	};
 }

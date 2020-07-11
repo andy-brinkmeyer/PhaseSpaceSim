@@ -42,4 +42,8 @@ TEST(CoreTest, EstimationTest) {
 
 	gtsam::Point3 estimatedPoint{ core.estimateFromCameras(knownPoint, cameraList) };
 	ASSERT_TRUE(estimatedPoint.isApprox(knownPoint));
+
+	// test for underdetermined system
+	cameraList.pop_back();
+	ASSERT_THROW(core.estimateFromCameras(knownPoint, cameraList), PSS::UnderdeterminedSystem);
 }

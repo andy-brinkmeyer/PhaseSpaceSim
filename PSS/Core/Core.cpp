@@ -49,18 +49,27 @@ namespace PSS {
 
 		// check if enough equations
 		if (estimationEquations.rows() < 3) {
-			throw "Not enough equations.";
+			throw UnderdeterminedSystem("Not enough lin. independent equations. Need at least 3, got: " + std::to_string(estimationEquations.rows()));
 		}
 
 		// find solution to homogeneous system
 		Eigen::BDCSVD<Eigen::MatrixX4d> bdSvd{ estimationEquations.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV) };
 		if (bdSvd.rank() < 3) {
-			throw "Not enough equations.";
+			throw UnderdeterminedSystem("System is rank deficient. Rank:" + std::to_string(bdSvd.rank())); 
 		}
 		else {
 			Eigen::Vector4d solution{ bdSvd.matrixV().col(3) };
 			gtsam::Point3 estimatedPoint{ solution.hnormalized() };
 			return estimatedPoint;
 		}
+	}
+
+	// custom exception implementation
+	UnderdeterminedSystem::UnderdeterminedSystem(const std::string& msg) {
+		mMsg = msg;
+	}
+
+	const char* UnderdeterminedSystem::what() const throw () {
+		return mMsg.c_str();
 	}
 }

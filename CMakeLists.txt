@@ -30,7 +30,7 @@ set(PSS_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/PSS)
 add_subdirectory ("PSS")
 
 # use testing
-option(BUILD_TESTS "Select to build unit tests for PSS_lib." ON)
+option(BUILD_TESTS "Select to build unit tests for PSS_lib." OFF)
 if (BUILD_TESTS)
 	add_subdirectory("testing")
 endif()
