@@ -5,7 +5,7 @@
 
 #include <boost/none.hpp>
 #include <boost/optional.hpp>
-#include <Eigen/Eigen>
+#include <Eigen/Dense>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/geometry/Point3.h>
 
@@ -64,11 +64,34 @@ namespace PSS {
 
 		// check if the point is projected on the sensor
 		double projectedPoint{ projectPoint(point) };
-		if (projectedPoint < 0 || projectedPoint + mCenterOffset > mSensorWidth) {
+		if (projectedPoint < 0 || projectedPoint > mSensorWidth) {
 			throw std::domain_error("Point lies outside of sensor range.");
 		}
 
 		return projectedPoint;
+	}
+
+	LinearDetector::ProjectionMatrix LinearDetector::computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose) {
+		Eigen::Matrix<double, 2, 3> intrinsics;
+		intrinsics << focalLength, 0, centerOffset,
+			0, 0, 1;
+
+		Eigen::Matrix<double, 3, 3> rotation = pose.rotation().matrix();
+
+		Eigen::Matrix<double, 3, 4> translation;
+		translation << 1, 0, 0, -pose.x(),
+			0, 1, 0, -pose.y(),
+			0, 0, 1, -pose.z();
+
+		// finally create the projection matrix
+		return intrinsics * rotation * translation;
+	}
+
+	// estimation
+	Eigen::Matrix<double, 1, 4> LinearDetector::getEstimationEquation(gtsam::Point3& point) {
+		double measurement{ safeProjectPoint(point) };
+		Eigen::Matrix<double, 1, 4> estimationEquation{ (measurement * mC2) - mC1 };
+		return estimationEquation;
 	}
 
 	// helper functions
@@ -88,21 +111,9 @@ namespace PSS {
 			mCalibratedPose = mPose;
 			mCalibratedProjectionMatrix = mProjectionMatrix;
 		}
-	}
 
-	LinearDetector::ProjectionMatrix LinearDetector::computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose) {
-		Eigen::Matrix<double, 2, 3> intrinsics;
-		intrinsics << focalLength, 0, centerOffset,
-			0, 0, 1;
-
-		Eigen::Matrix<double, 3, 3> rotation = pose.rotation().matrix();
-
-		Eigen::Matrix<double, 3, 4> translation;
-		translation << 1, 0, 0, -pose.x(),
-			0, 1, 0, -pose.y(),
-			0, 0, 1, -pose.z();
-
-		// finally create the projection matrix
-		return intrinsics * rotation * translation;
+		// get rows of calibrated projection matrix for quick access for estimation
+		mC1 = mCalibratedProjectionMatrix.row(0);
+		mC2 = mCalibratedProjectionMatrix.row(1);
 	}
 }

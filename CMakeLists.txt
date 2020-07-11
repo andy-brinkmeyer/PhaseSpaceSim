@@ -28,4 +28,13 @@ set(PSS_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/PSS)
 
 # sub-projects
 add_subdirectory ("PSS")
-add_subdirectory("testing")
+
+# use testing
+option(BUILD_TESTS "Select to build unit tests for PSS_lib." ON)
+if (BUILD_TESTS)
+	add_subdirectory("testing")
+endif()
+
+# executable for some dev testing
+add_executable(TEST_EXE "test.cpp")
+target_include_directories(TEST_EXE PUBLIC ${Eigen_INCLUDE_DIR})

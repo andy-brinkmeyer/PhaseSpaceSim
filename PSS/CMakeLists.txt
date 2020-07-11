@@ -1,5 +1,10 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 
+# set some compiler flags
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+endif()
+
 # create targets
 add_library(PSS_lib STATIC
 	"camera/LinearDetector.h" "camera/LinearDetector.cpp"

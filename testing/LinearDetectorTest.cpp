@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include <Eigen/Eigen>
+#include <Eigen/Dense>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/geometry/Rot3.h>
 #include <gtsam/geometry/Point3.h>

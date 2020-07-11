@@ -1,0 +1,45 @@
+#include "Core/Core.h"
+#include "Camera/Camera.h"
+
+#include <gtest/gtest.h>
+
+#include <gtsam/geometry/Point3.h>
+#include <gtsam/geometry/Rot3.h>
+#include <gtsam/geometry/Pose3.h>
+
+#include <unordered_map>
+#include <string>
+#include <vector>
+
+
+TEST(CoreTest, EstimationTest) {
+	// create cameras
+	double fieldOfView{ 120 };
+	double sensorWidth{ 0.1 };
+
+	gtsam::Point3 position1{ 0.0, 0.0, 0.0 };
+	gtsam::Rot3 rotation1{ 1.0, 0.0, 0.0, 0.0 };
+	gtsam::Pose3 pose1{ rotation1, position1 };
+	PSS::Camera camera1{ fieldOfView, sensorWidth, pose1 };
+
+	gtsam::Point3 position2{ -5.0, 1.0, 0.0 };
+	gtsam::Rot3 rotation2{ 1, 0, 0, 0 };
+	gtsam::Pose3 pose2{ rotation2, position2 };
+	PSS::Camera camera2{ fieldOfView, sensorWidth, pose2 };
+	
+	// create core
+	std::unordered_map<string, PSS::Camera> cameraMap{
+		{ "Cam1", camera1 },
+		{ "Cam2", camera2 }
+	};
+	PSS::Core core{ cameraMap };
+
+	// estimate point
+	gtsam::Point3 knownPoint{ -2.5, 0.5, 10.0 };
+	std::vector<std::string> cameraList;
+	cameraList.push_back("Cam1");
+	cameraList.push_back("Cam2");
+
+	gtsam::Point3 estimatedPoint{ core.estimateFromCameras(knownPoint, cameraList) };
+	ASSERT_TRUE(estimatedPoint.isApprox(knownPoint));
+}

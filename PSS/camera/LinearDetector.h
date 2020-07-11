@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Eigen>
+#include <Eigen/Dense>
 #include <gtsam/geometry/Point3.h>
 #include <gtsam/geometry/Pose3.h>
 
@@ -29,14 +29,26 @@ namespace PSS {
 		double projectPoint(gtsam::Point3 &point);
 		double safeProjectPoint(gtsam::Point3& point);
 
+		// estimation
+		Eigen::Matrix<double, 1, 4> getEstimationEquation(gtsam::Point3& point);
+
 	private:
+		// instrinsics
 		double mFocalLength;
 		double mCenterOffset;
 		double mSensorWidth;
+
+		// pose
 		gtsam::Pose3 mPose;
 		gtsam::Pose3 mCalibratedPose;
+
+		// projeciton
 		ProjectionMatrix mProjectionMatrix;
 		ProjectionMatrix mCalibratedProjectionMatrix;
+
+		// estimation
+		Eigen::Matrix<double, 1, 4> mC1;	// first row of projection matrix for quick access
+		Eigen::Matrix<double, 1, 4> mC2;	// second row of projection matrix for quick access
 
 		// helper functions
 		void init(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose, boost::optional<gtsam::Pose3> calibratedPose);

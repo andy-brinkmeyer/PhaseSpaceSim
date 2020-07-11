@@ -4,22 +4,24 @@
 
 #include <gtsam/geometry/Point3.h>
 
-#include <map>
+#include <unordered_map>
+#include <vector>
+#include <string>
 
 
 namespace PSS {
 	class Core {
 	public:
 		// cosntructors
-		Core(std::map<string, Camera>& cameras);
+		Core(std::unordered_map<std::string, Camera>& cameras);
 
 		// getters
-		std::map<string, Camera>& cameras();
+		std::unordered_map<std::string, Camera>& cameras();
 
 		// estimation
-		gtsam::Point3& estimateFromPoint(gtsam::Point3& point);
+		gtsam::Point3 estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras);
 
 	private:
-		std::map<string, Camera> mCameras;
+		std::unordered_map<std::string, Camera> mCameras;
 	};
 }
