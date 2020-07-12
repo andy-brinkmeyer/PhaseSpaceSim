@@ -13,7 +13,6 @@ add_library(PSS_lib STATIC
 	  )
 set_target_properties(PSS_lib PROPERTIES 
 	LINKER_LANGUAGE CXX
-	CXX_STANDARD 14
 	)
 target_include_directories(PSS_lib PUBLIC ${GTSAM_INCLUDE_DIR} ${Eigen_INCLUDE_DIR} ${Boost_INCLUDE_DIR} "3rdparty")
 

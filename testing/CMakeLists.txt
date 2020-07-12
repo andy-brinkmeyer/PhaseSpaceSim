@@ -20,7 +20,6 @@ target_link_libraries(PSS_test
 
 set_target_properties(PSS_test PROPERTIES 
 	LINKER_LANGUAGE CXX
-	CXX_STANDARD 14
 	)
 
 # find the tests
