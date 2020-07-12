@@ -26,24 +26,32 @@ TEST(CoreTest, EstimationTest) {
 	gtsam::Rot3 rotation2{ 1, 0, 0, 0 };
 	gtsam::Pose3 pose2{ rotation2, position2 };
 	PSS::Camera camera2{ fieldOfView, sensorWidth, pose2 };
+
+	gtsam::Point3 position3{ 0.0, 0.0, 10.0 };
+	gtsam::Rot3 rotation3{ 0, 0, 1, 0 };
+	gtsam::Pose3 pose3{ rotation2, position2 };
+	PSS::Camera camera3{ fieldOfView, sensorWidth, pose3 };
 	
 	// create core
 	std::unordered_map<string, PSS::Camera> cameraMap{
 		{ "Cam1", camera1 },
-		{ "Cam2", camera2 }
+		{ "Cam2", camera2 },
+		{ "Cam3", camera3 }
 	};
 	PSS::Core core{ cameraMap };
 
 	// estimate point
-	gtsam::Point3 knownPoint{ -2.5, 0.5, 10.0 };
+	gtsam::Point3 knownPoint{ -2.5, 0.5, 5.0 };
 	std::vector<std::string> cameraList;
 	cameraList.push_back("Cam1");
 	cameraList.push_back("Cam2");
+	cameraList.push_back("Cam3");
 
 	gtsam::Point3 estimatedPoint{ core.estimateFromCameras(knownPoint, cameraList) };
 	ASSERT_TRUE(estimatedPoint.isApprox(knownPoint));
 
 	// test for underdetermined system
+	cameraList.pop_back();
 	cameraList.pop_back();
 	ASSERT_THROW(core.estimateFromCameras(knownPoint, cameraList), PSS::UnderdeterminedSystem);
 }
