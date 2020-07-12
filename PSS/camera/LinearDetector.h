@@ -12,10 +12,10 @@ namespace PSS {
 		typedef Eigen::Matrix<double, 2, 4> ProjectionMatrix;
 
 		// constructors
-		LinearDetector(double fieldOfView, double sensorWidth, gtsam::Pose3& pose);
-		LinearDetector(double fieldOfView, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose);
-		LinearDetector(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose);
-		LinearDetector(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose);
+		LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose);
+		LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
+		LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose);
+		LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
 
 		// getters
 		double focalLength();
@@ -51,7 +51,7 @@ namespace PSS {
 		Eigen::Matrix<double, 1, 4> mC2;	// second row of projection matrix for quick access
 
 		// helper functions
-		void init(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose, boost::optional<gtsam::Pose3> calibratedPose);
+		void init(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, boost::optional<gtsam::Pose3> calibratedPose);
 		ProjectionMatrix computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose);
 	};
 }

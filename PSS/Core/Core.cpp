@@ -14,9 +14,7 @@
 
 namespace PSS {
 	// constructors
-	Core::Core(std::unordered_map<std::string, Camera>& cameras) {
-		mCameras = cameras;
-	}
+	Core::Core(const std::unordered_map<std::string, Camera>& cameras) : mCameras{ cameras } { }
 
 	// getters
 	std::unordered_map<std::string, Camera>& Core::cameras() { return mCameras; };

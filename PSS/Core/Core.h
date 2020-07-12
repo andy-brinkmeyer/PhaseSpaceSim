@@ -14,7 +14,7 @@ namespace PSS {
 	class Core {
 	public:
 		// cosntructors
-		Core(std::unordered_map<std::string, Camera>& cameras);
+		Core(const std::unordered_map<std::string, Camera>& cameras);
 
 		// getters
 		std::unordered_map<std::string, Camera>& cameras();

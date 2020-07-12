@@ -12,7 +12,7 @@
 
 namespace PSS {
 	// contructors
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, gtsam::Pose3& pose) {
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose) {
 		double fovRad{ fieldOfView * M_PI / 180 };
 		double focalLength{ sensorWidth / (2 * std::tan(0.5 * fovRad)) };
 		double centerOffset = 0.5 * sensorWidth;
@@ -20,7 +20,7 @@ namespace PSS {
 		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
 	}
 
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose) {
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose) {
 		double fovRad{ fieldOfView * M_PI / 180 };
 		double focalLength{ sensorWidth / (2 * std::tan(0.5 * fovRad)) };
 		double centerOffset = 0.5 * sensorWidth;
@@ -28,12 +28,12 @@ namespace PSS {
 		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
 	}
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose) {
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose) {
 		boost::optional<gtsam::Pose3> optionalCalibratedPose;
 		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
 	}
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose) {
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose) {
 		boost::optional<gtsam::Pose3> optionalCalibratedPose{ calibratedPose };
 		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
 	}
@@ -95,7 +95,7 @@ namespace PSS {
 	}
 
 	// helper functions
-	void LinearDetector::init(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose, boost::optional<gtsam::Pose3> optionalCalibratedPose) {
+	void LinearDetector::init(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, boost::optional<gtsam::Pose3> optionalCalibratedPose) {
 		mFocalLength = focalLength;
 		mCenterOffset = centerOffset;
 		mSensorWidth = sensorWidth;

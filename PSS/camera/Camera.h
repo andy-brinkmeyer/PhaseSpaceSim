@@ -13,10 +13,10 @@ namespace PSS {
 		// constructors
 		Camera();
 		Camera(LinearDetector& horizontalDetector, LinearDetector& verticalDetector);
-		Camera(double fieldOfView, double sensorWidth, gtsam::Pose3& pose);
-		Camera(double fieldOfView, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose);
-		Camera(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose);
-		Camera(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose, gtsam::Pose3& calibratedPose);
+		Camera(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose);
+		Camera(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
+		Camera(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose);
+		Camera(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
 
 		// getters
 		LinearDetector& horizontalDetector();
@@ -30,6 +30,6 @@ namespace PSS {
 		LinearDetector mVerticalDetector;
 
 		// helper functions
-		gtsam::Pose3 rotateToVertical(gtsam::Pose3& pose);
+		gtsam::Pose3 rotateToVertical(const gtsam::Pose3& pose);
 	};
 }
