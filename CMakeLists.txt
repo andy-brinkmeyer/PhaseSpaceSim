@@ -20,7 +20,6 @@ set(Eigen_INCLUDE_DIR ${GTSAM_INCLUDE_DIR}/gtsam/3rdparty/Eigen)
 
 # find google test
 # you might have to set GTEST_ROOT
-set(GTEST_ROOT "C:\\Program Files\\googletest-distribution" CACHE PATH "GTest root directory")
 find_package(GTest REQUIRED)
 
 # define PSS include directory
