@@ -1,5 +1,5 @@
-#include <Core/Core.h>
-#include <Camera/Camera.h>
+#include <core/Core.h>
+#include <camera/Camera.h>
 
 #include <gtest/gtest.h>
 
@@ -29,7 +29,7 @@ TEST(CoreTest, EstimationTest) {
 
 	gtsam::Point3 position3{ 0.0, 0.0, 10.0 };
 	gtsam::Rot3 rotation3{ 0, 0, 1, 0 };
-	gtsam::Pose3 pose3{ rotation2, position2 };
+	gtsam::Pose3 pose3{ rotation3, position3 };
 	PSS::Camera camera3{ fieldOfView, sensorWidth, pose3 };
 	
 	// create core

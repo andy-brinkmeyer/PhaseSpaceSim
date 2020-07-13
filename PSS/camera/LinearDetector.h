@@ -7,29 +7,29 @@
 
 namespace PSS {
 	class LinearDetector {
+	public:
 		// typedefs
 		typedef Eigen::Matrix<double, 2, 4> ProjectionMatrix;
 
+	private:
 		// instrinsics
 		double mFocalLength;
-		double mCenterOffset;
 		double mSensorWidth;
+		double mCenterOffset;
 
 		// pose
 		gtsam::Pose3 mPose;
 		gtsam::Pose3 mCalibratedPose;
 
-		// projeciton
+		// projection
 		ProjectionMatrix mProjectionMatrix;
 		ProjectionMatrix mCalibratedProjectionMatrix;
+		ProjectionMatrix computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose);
 
 		// estimation
 		Eigen::Matrix<double, 1, 4> mC1;	// first row of projection matrix for quick access
 		Eigen::Matrix<double, 1, 4> mC2;	// second row of projection matrix for quick access
-
-		// helper functions
-		void init(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, boost::optional<gtsam::Pose3> calibratedPose);
-		ProjectionMatrix computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose);
+		
 
 	public:
 		// macro for Eigen to peroperly handle the alignement of fixed size matrices

@@ -12,31 +12,53 @@
 
 namespace PSS {
 	// contructors
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose) {
-		double fovRad{ fieldOfView * M_PI / 180 };
-		double focalLength{ sensorWidth / (2 * std::tan(0.5 * fovRad)) };
-		double centerOffset = 0.5 * sensorWidth;
-		boost::optional<gtsam::Pose3> optionalCalibratedPose;
-		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
-	}
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose)
+		: mFocalLength{ sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))) }
+		, mSensorWidth{ sensorWidth }
+		, mCenterOffset{ 0.5 * mSensorWidth }
+		, mPose{ pose }
+		, mCalibratedPose{ pose }
+		, mProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose) }
+		, mCalibratedProjectionMatrix{ mProjectionMatrix }
+		, mC1{ mCalibratedProjectionMatrix.row(0) }
+		, mC2{ mCalibratedProjectionMatrix.row(1) }
+	{ }
 
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose) {
-		double fovRad{ fieldOfView * M_PI / 180 };
-		double focalLength{ sensorWidth / (2 * std::tan(0.5 * fovRad)) };
-		double centerOffset = 0.5 * sensorWidth;
-		boost::optional<gtsam::Pose3> optionalCalibratedPose{ calibratedPose };
-		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
-	}
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+		: mFocalLength{ sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))) }
+		, mSensorWidth{ sensorWidth }
+		, mCenterOffset{ 0.5 * mSensorWidth }
+		, mPose{ pose }
+		, mCalibratedPose{ calibratedPose }
+		, mProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose) }
+		, mCalibratedProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mCalibratedPose) }
+		, mC1{ mCalibratedProjectionMatrix.row(0) }
+		, mC2{ mCalibratedProjectionMatrix.row(1) }
+	{ }
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose) {
-		boost::optional<gtsam::Pose3> optionalCalibratedPose;
-		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
-	}
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose)
+		: mFocalLength{ focalLength }
+		, mCenterOffset{ centerOffset }
+		, mSensorWidth{ sensorWidth }
+		, mPose{ pose }
+		, mCalibratedPose{ pose }
+		, mProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose) }
+		, mCalibratedProjectionMatrix{ mProjectionMatrix }
+		, mC1{ mCalibratedProjectionMatrix.row(0) }
+		, mC2{ mCalibratedProjectionMatrix.row(1) }
+	{ }
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose) {
-		boost::optional<gtsam::Pose3> optionalCalibratedPose{ calibratedPose };
-		init(focalLength, centerOffset, sensorWidth, pose, optionalCalibratedPose);
-	}
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+		: mFocalLength{ focalLength }
+		, mCenterOffset{ centerOffset }
+		, mSensorWidth{ sensorWidth }
+		, mPose{ pose }
+		, mCalibratedPose{ calibratedPose }
+		, mProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose) }
+		, mCalibratedProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mCalibratedPose) }
+		, mC1{ mCalibratedProjectionMatrix.row(0) }
+		, mC2{ mCalibratedProjectionMatrix.row(1) }
+	{ }
 
 	// getters
 	double LinearDetector::focalLength() { return mFocalLength; }
@@ -92,28 +114,5 @@ namespace PSS {
 		double measurement{ safeProjectPoint(point) };
 		Eigen::Matrix<double, 1, 4> estimationEquation{ (measurement * mC2) - mC1 };
 		return estimationEquation;
-	}
-
-	// helper functions
-	void LinearDetector::init(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, boost::optional<gtsam::Pose3> optionalCalibratedPose) {
-		mFocalLength = focalLength;
-		mCenterOffset = centerOffset;
-		mSensorWidth = sensorWidth;
-		mPose = pose;
-
-		// create the projection matrices
-		mProjectionMatrix = computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose);
-		if (optionalCalibratedPose) {
-			mCalibratedPose = *optionalCalibratedPose;
-			mCalibratedProjectionMatrix = computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mCalibratedPose);
-		}
-		else {
-			mCalibratedPose = mPose;
-			mCalibratedProjectionMatrix = mProjectionMatrix;
-		}
-
-		// get rows of calibrated projection matrix for quick access for estimation
-		mC1 = mCalibratedProjectionMatrix.row(0);
-		mC2 = mCalibratedProjectionMatrix.row(1);
 	}
 }
