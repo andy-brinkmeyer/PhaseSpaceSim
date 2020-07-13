@@ -1,7 +1,7 @@
 #define _USE_MATH_DEFINES
 
-#include "camera/Camera.h"
-#include "camera/LinearDetector.h"
+#include <camera/Camera.h>
+#include <camera/LinearDetector.h>
 
 #include <gtest/gtest.h>
 
