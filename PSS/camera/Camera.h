@@ -17,7 +17,6 @@ namespace PSS {
 
 	public:
 		// constructors
-		Camera();
 		Camera(LinearDetector& horizontalDetector, LinearDetector& verticalDetector);
 		Camera(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose);
 		Camera(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);

@@ -11,15 +11,17 @@
 
 
 namespace PSS {
+	typedef std::unordered_map<std::string, Camera, std::hash<std::string>, std::equal_to<std::string>, Eigen::aligned_allocator<std::pair<const std::string, Camera>>> CameraMap;
+
 	class Core {
-		std::unordered_map<std::string, Camera> mCameras;
+		CameraMap mCameras;
 
 	public:
 		// cosntructors
-		Core(const std::unordered_map<std::string, Camera>& cameras);
+		Core(const CameraMap& cameras);
 
 		// getters
-		std::unordered_map<std::string, Camera>& cameras();
+		CameraMap& cameras();
 
 		// estimation
 		gtsam::Point3 estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras);

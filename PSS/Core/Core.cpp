@@ -14,10 +14,10 @@
 
 namespace PSS {
 	// constructors
-	Core::Core(const std::unordered_map<std::string, Camera>& cameras) : mCameras{ cameras } { }
+	Core::Core(const CameraMap& cameras) : mCameras{ cameras } { }
 
 	// getters
-	std::unordered_map<std::string, Camera>& Core::cameras() { return mCameras; };
+	CameraMap& Core::cameras() { return mCameras; };
 
 	// estimation
 	gtsam::Point3 Core::estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras) {
@@ -25,7 +25,7 @@ namespace PSS {
 
 		for (const std::string& cameraID : cameras) {
 			// lookup the camera
-			std::unordered_map<std::string, Camera>::const_iterator foundCamera{ mCameras.find(cameraID) };
+			CameraMap::const_iterator foundCamera{ mCameras.find(cameraID) };
 			if (foundCamera == mCameras.end()) {
 				continue;
 			}

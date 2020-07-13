@@ -33,7 +33,7 @@ TEST(CoreTest, EstimationTest) {
 	PSS::Camera camera3{ fieldOfView, sensorWidth, pose3 };
 	
 	// create core
-	std::unordered_map<string, PSS::Camera> cameraMap{
+	PSS::CameraMap cameraMap{
 		{ "Cam1", camera1 },
 		{ "Cam2", camera2 },
 		{ "Cam3", camera3 }
