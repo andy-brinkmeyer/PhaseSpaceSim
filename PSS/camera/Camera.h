@@ -9,6 +9,12 @@
 
 namespace PSS {
 	class Camera {
+		LinearDetector mHorizontalDetector;
+		LinearDetector mVerticalDetector;
+
+		// helper functions
+		gtsam::Pose3 rotateToVertical(const gtsam::Pose3& pose);
+
 	public:
 		// constructors
 		Camera();
@@ -24,12 +30,5 @@ namespace PSS {
 
 		// estimation
 		Eigen::Matrix<double, Eigen::Dynamic, 4> getEstimationEquations(gtsam::Point3& point);
-
-	private:
-		LinearDetector mHorizontalDetector;
-		LinearDetector mVerticalDetector;
-
-		// helper functions
-		gtsam::Pose3 rotateToVertical(const gtsam::Pose3& pose);
 	};
 }

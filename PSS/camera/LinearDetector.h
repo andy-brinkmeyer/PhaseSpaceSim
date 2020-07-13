@@ -7,9 +7,33 @@
 
 namespace PSS {
 	class LinearDetector {
-	public:
 		// typedefs
 		typedef Eigen::Matrix<double, 2, 4> ProjectionMatrix;
+
+		// instrinsics
+		double mFocalLength;
+		double mCenterOffset;
+		double mSensorWidth;
+
+		// pose
+		gtsam::Pose3 mPose;
+		gtsam::Pose3 mCalibratedPose;
+
+		// projeciton
+		ProjectionMatrix mProjectionMatrix;
+		ProjectionMatrix mCalibratedProjectionMatrix;
+
+		// estimation
+		Eigen::Matrix<double, 1, 4> mC1;	// first row of projection matrix for quick access
+		Eigen::Matrix<double, 1, 4> mC2;	// second row of projection matrix for quick access
+
+		// helper functions
+		void init(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, boost::optional<gtsam::Pose3> calibratedPose);
+		ProjectionMatrix computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose);
+
+	public:
+		// macro for Eigen to peroperly handle the alignement of fixed size matrices
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		// constructors
 		LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose);
@@ -31,27 +55,5 @@ namespace PSS {
 
 		// estimation
 		Eigen::Matrix<double, 1, 4> getEstimationEquation(gtsam::Point3& point);
-
-	private:
-		// instrinsics
-		double mFocalLength;
-		double mCenterOffset;
-		double mSensorWidth;
-
-		// pose
-		gtsam::Pose3 mPose;
-		gtsam::Pose3 mCalibratedPose;
-
-		// projeciton
-		ProjectionMatrix mProjectionMatrix;
-		ProjectionMatrix mCalibratedProjectionMatrix;
-
-		// estimation
-		Eigen::Matrix<double, 1, 4> mC1;	// first row of projection matrix for quick access
-		Eigen::Matrix<double, 1, 4> mC2;	// second row of projection matrix for quick access
-
-		// helper functions
-		void init(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, boost::optional<gtsam::Pose3> calibratedPose);
-		ProjectionMatrix computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose);
 	};
 }

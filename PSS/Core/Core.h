@@ -12,6 +12,8 @@
 
 namespace PSS {
 	class Core {
+		std::unordered_map<std::string, Camera> mCameras;
+
 	public:
 		// cosntructors
 		Core(const std::unordered_map<std::string, Camera>& cameras);
@@ -21,18 +23,14 @@ namespace PSS {
 
 		// estimation
 		gtsam::Point3 estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras);
-
-	private:
-		std::unordered_map<std::string, Camera> mCameras;
 	};
 
 	class UnderdeterminedSystem : public std::exception {
+		std::string mMsg;
+
 	public:
 		UnderdeterminedSystem(const std::string& msg);
 
 		virtual const char* what() const throw ();
-
-	private:
-		std::string mMsg;
 	};
 }
