@@ -1,5 +1,5 @@
-#include "Core/Core.h"
-#include "Camera/Camera.h"
+#include <Core/Core.h>
+#include <Camera/Camera.h>
 
 #include <gtest/gtest.h>
 
