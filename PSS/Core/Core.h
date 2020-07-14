@@ -24,7 +24,7 @@ namespace PSS {
 		CameraMap& cameras();
 
 		// estimation
-		gtsam::Point3 estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras);
+		gtsam::Point3 estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras, bool addSensorNoise = true);
 	};
 
 	class UnderdeterminedSystem : public std::exception {

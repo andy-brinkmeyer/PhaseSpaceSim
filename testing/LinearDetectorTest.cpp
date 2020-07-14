@@ -18,8 +18,9 @@ TEST(LinearDetectorTest, FOVConstructorTest) {
 
 	double fieldOfView{ 90.0 };
 	double sensorWidth{ 0.1 };
+	double sensorVariance{ 0.001 };
 
-	PSS::LinearDetector linDetector{ fieldOfView, sensorWidth, pose };
+	PSS::LinearDetector linDetector{ fieldOfView, sensorWidth, sensorVariance, pose };
 
 	// check if the focal length was computed correctly
 	double expectedFocalLength{ 0.05 };
@@ -37,8 +38,9 @@ TEST(LinearDetectorTest, GettersTest) {
 	double focalLength{ 0.075 };
 	double sensorWidth{ 0.2 };
 	double centerOffset{ 0.1 };
+	double sensorVariance{ 0.001 };
 
-	PSS::LinearDetector linDetector{ focalLength, centerOffset, sensorWidth, pose };
+	PSS::LinearDetector linDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose };
 
 	// check getters
 	ASSERT_EQ(linDetector.focalLength(), focalLength);
@@ -56,7 +58,7 @@ TEST(LinearDetectorTest, GettersTest) {
 	// test with calibratedPose
 	gtsam::Point3 calibratedPosition{ 2.0, 2.0, 3.0 };
 	gtsam::Pose3 calibratedPose{ rotation, calibratedPosition };
-	PSS::LinearDetector calibratedLinDetector{ focalLength, centerOffset, sensorWidth, pose, calibratedPose };
+	PSS::LinearDetector calibratedLinDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose, calibratedPose };
 
 	Eigen::Matrix<double, 2, 4> calibratedProjMatrix;
 	calibratedProjMatrix << 0.075, 0, 0.1, -0.450, 0, 0, 1, -3.0;
@@ -72,25 +74,27 @@ TEST(LinearDetectorTest, ProjectionTest) {
 	double focalLength{ 0.075 };
 	double sensorWidth{ 0.2 };
 	double centerOffset{ 0.1 };
+	double sensorVariance{ 0.001 };
 
-	PSS::LinearDetector linDetector{ focalLength, centerOffset, sensorWidth, pose };
+	PSS::LinearDetector linDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose };
 
 	// check projection
 	gtsam::Point3 point{ 1.0, 2.0, 4.0 };
 	double expectedPoint{ 0.1 };
-	double delta{ std::abs(linDetector.projectPoint(point) - expectedPoint) };
+	bool addNoise{ false };
+	double delta{ std::abs(linDetector.projectPoint(point, addNoise) - expectedPoint) };
 	double epsilon{ 0.000001 };
 	ASSERT_TRUE(delta < epsilon);
 
 	// check safe projection
 	// check point behind camera
 	point(2, 0) = 2.0;
-	ASSERT_THROW(linDetector.safeProjectPoint(point), std::domain_error);
+	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), std::domain_error);
 
 	// check point outside of sensor range
 	point(2, 0) = 4.0;
 	point(0, 0) = -10.0;
-	ASSERT_THROW(linDetector.safeProjectPoint(point), std::domain_error);
+	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), std::domain_error);
 	point(0, 0) = 10.0;
-	ASSERT_THROW(linDetector.safeProjectPoint(point), std::domain_error);
+	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), std::domain_error);
 }

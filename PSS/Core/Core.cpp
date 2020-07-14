@@ -20,7 +20,7 @@ namespace PSS {
 	CameraMap& Core::cameras() { return mCameras; };
 
 	// estimation
-	gtsam::Point3 Core::estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras) {
+	gtsam::Point3 Core::estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras, bool addSensorNoise) {
 		Eigen::Matrix<double, Eigen::Dynamic, 4> estimationEquations;
 
 		for (const std::string& cameraID : cameras) {
@@ -33,7 +33,7 @@ namespace PSS {
 
 			// get estimation equations and add to estimation matrix
 			try {
-				Eigen::Matrix<double, Eigen::Dynamic, 4> equations{ currentCamera.getEstimationEquations(point) };
+				Eigen::Matrix<double, Eigen::Dynamic, 4> equations{ currentCamera.getEstimationEquations(point, addSensorNoise) };
 				std::ptrdiff_t newEquations{ equations.rows() };
 				std::ptrdiff_t oldEquations{ estimationEquations.rows() };
 				estimationEquations.conservativeResize(oldEquations + newEquations, Eigen::NoChange);

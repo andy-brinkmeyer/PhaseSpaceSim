@@ -17,17 +17,16 @@ namespace PSS {
 
 	public:
 		// constructors
-		Camera(LinearDetector& horizontalDetector, LinearDetector& verticalDetector);
-		Camera(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose);
-		Camera(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
-		Camera(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose);
-		Camera(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
+		Camera(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose);
+		Camera(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
+		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose);
+		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
 
 		// getters
 		LinearDetector& horizontalDetector();
 		LinearDetector& verticalDetector();
 
 		// estimation
-		Eigen::Matrix<double, Eigen::Dynamic, 4> getEstimationEquations(gtsam::Point3& point);
+		Eigen::Matrix<double, Eigen::Dynamic, 4> getEstimationEquations(gtsam::Point3& point, bool addSensorNoise = true);
 	};
 }

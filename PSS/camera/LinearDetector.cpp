@@ -12,45 +12,33 @@
 
 namespace PSS {
 	// contructors
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose)
-		: mFocalLength{ sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))) }
-		, mSensorWidth{ sensorWidth }
-		, mCenterOffset{ 0.5 * mSensorWidth }
-		, mPose{ pose }
-		, mCalibratedPose{ pose }
-		, mProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose) }
-		, mCalibratedProjectionMatrix{ mProjectionMatrix }
-		, mC1{ mCalibratedProjectionMatrix.row(0) }
-		, mC2{ mCalibratedProjectionMatrix.row(1) }
+	LinearDetector::LinearDetector(const LinearDetector& linearDetector)
+		: LinearDetector::LinearDetector(
+			linearDetector.mFocalLength,
+			linearDetector.mCenterOffset,
+			linearDetector.mSensorWidth,
+			linearDetector.mSensorVariance,
+			linearDetector.mPose,
+			linearDetector.mCalibratedPose
+		) 
 	{ }
 
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
-		: mFocalLength{ sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))) }
-		, mSensorWidth{ sensorWidth }
-		, mCenterOffset{ 0.5 * mSensorWidth }
-		, mPose{ pose }
-		, mCalibratedPose{ calibratedPose }
-		, mProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose) }
-		, mCalibratedProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mCalibratedPose) }
-		, mC1{ mCalibratedProjectionMatrix.row(0) }
-		, mC2{ mCalibratedProjectionMatrix.row(1) }
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose)
+		: LinearDetector::LinearDetector(fieldOfView, sensorWidth, sensorVariance, pose, pose)
 	{ }
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose)
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+		: LinearDetector::LinearDetector(sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))), 0.5 * sensorWidth, sensorWidth, sensorVariance, pose, calibratedPose)
+	{ }
+
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose)
+		: LinearDetector::LinearDetector(focalLength, centerOffset, sensorWidth, sensorVariance, pose, pose)
+	{ }
+
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
 		: mFocalLength{ focalLength }
 		, mCenterOffset{ centerOffset }
-		, mSensorWidth{ sensorWidth }
-		, mPose{ pose }
-		, mCalibratedPose{ pose }
-		, mProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose) }
-		, mCalibratedProjectionMatrix{ mProjectionMatrix }
-		, mC1{ mCalibratedProjectionMatrix.row(0) }
-		, mC2{ mCalibratedProjectionMatrix.row(1) }
-	{ }
-
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
-		: mFocalLength{ focalLength }
-		, mCenterOffset{ centerOffset }
+		, mSensorVariance{ sensorVariance }
 		, mSensorWidth{ sensorWidth }
 		, mPose{ pose }
 		, mCalibratedPose{ calibratedPose }
@@ -58,24 +46,35 @@ namespace PSS {
 		, mCalibratedProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mCalibratedPose) }
 		, mC1{ mCalibratedProjectionMatrix.row(0) }
 		, mC2{ mCalibratedProjectionMatrix.row(1) }
+		, mRandomDevice{ }
+		, mRandomGenerator{ mRandomDevice() }
+		, mNormalDistribution{ 0.0, sensorVariance }
 	{ }
 
 	// getters
 	double LinearDetector::focalLength() { return mFocalLength; }
 	double LinearDetector::sensorWidth() { return mSensorWidth; }
+	double LinearDetector::sensorVariance() { return mSensorVariance; }
 	double LinearDetector::centerOffset() { return mCenterOffset; }
 	gtsam::Pose3& LinearDetector::pose() { return mPose; }
 	LinearDetector::ProjectionMatrix& LinearDetector::projectionMatrix() { return mProjectionMatrix; }
 	LinearDetector::ProjectionMatrix& LinearDetector::calibratedProjectionMatrix() { return mCalibratedProjectionMatrix; }
 
 	// projection
-	double LinearDetector::projectPoint(gtsam::Point3 &point) {
+	double LinearDetector::projectPoint(gtsam::Point3 &point, bool addNoise) {
 		Eigen::Matrix<double, 4, 1> pointH{ point.homogeneous() };
 		Eigen::Matrix<double, 2, 1> projectedH{ mProjectionMatrix * pointH };
-		return projectedH.hnormalized()(0,0);
+		double projected;
+		if (addNoise) {
+			projected = projectedH.hnormalized()(0, 0) + mNormalDistribution(mRandomGenerator);
+		}
+		else {
+			projected = projectedH.hnormalized()(0, 0);
+		}
+		return projected;
 	}
 
-	double LinearDetector::safeProjectPoint(gtsam::Point3 &point) {
+	double LinearDetector::safeProjectPoint(gtsam::Point3 &point, bool addNoise) {
 		// transform the point to camera frame
 		gtsam::Point3 pointCamera{ mPose.transformTo(point) };
 		
@@ -85,7 +84,7 @@ namespace PSS {
 		}
 
 		// check if the point is projected on the sensor
-		double projectedPoint{ projectPoint(point) };
+		double projectedPoint{ projectPoint(point, addNoise) };
 		if (projectedPoint < 0 || projectedPoint > mSensorWidth) {
 			throw std::domain_error("Point lies outside of sensor range.");
 		}
@@ -110,8 +109,8 @@ namespace PSS {
 	}
 
 	// estimation
-	Eigen::Matrix<double, 1, 4> LinearDetector::getEstimationEquation(gtsam::Point3& point) {
-		double measurement{ safeProjectPoint(point) };
+	Eigen::Matrix<double, 1, 4> LinearDetector::getEstimationEquation(gtsam::Point3& point, bool addSensorNoise) {
+		double measurement{ safeProjectPoint(point, addSensorNoise) };
 		Eigen::Matrix<double, 1, 4> estimationEquation{ (measurement * mC2) - mC1 };
 		return estimationEquation;
 	}

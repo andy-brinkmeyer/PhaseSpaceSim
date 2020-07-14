@@ -15,38 +15,34 @@
 
 namespace PSS {
 	// constructors
-	Camera::Camera(LinearDetector& horizontalDetector, LinearDetector& verticalDetector) 
-		: mHorizontalDetector{ horizontalDetector }
-		, mVerticalDetector{ verticalDetector } { }
+	Camera::Camera(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose)
+		: mHorizontalDetector{ fieldOfView, sensorWidth, sensorVariance, pose }
+		, mVerticalDetector{ fieldOfView, sensorWidth, sensorVariance, rotateToVertical(pose) } { }
 
-	Camera::Camera(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose) 
-		: mHorizontalDetector{ fieldOfView, sensorWidth, pose }
-		, mVerticalDetector{ fieldOfView, sensorWidth, rotateToVertical(pose) } { }
+	Camera::Camera(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+		: mHorizontalDetector{ fieldOfView, sensorWidth, sensorVariance, pose, calibratedPose }
+		, mVerticalDetector{ fieldOfView, sensorWidth, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
 
-	Camera::Camera(double fieldOfView, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose) 
-		: mHorizontalDetector{ fieldOfView, sensorWidth, pose, calibratedPose }
-		, mVerticalDetector{ fieldOfView, sensorWidth, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
+	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose)
+		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose }
+		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, rotateToVertical(pose) } { }
 
-	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose)
-		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, pose }
-		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, rotateToVertical(pose) } { }
-
-	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose) 
-		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, pose, calibratedPose }
-		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
+	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose, calibratedPose }
+		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
 
 	// getters
 	LinearDetector& Camera::horizontalDetector() { return mHorizontalDetector; }
 	LinearDetector& Camera::verticalDetector() { return mVerticalDetector; }
 
 	// estimation
-	Eigen::Matrix<double, Eigen::Dynamic, 4> Camera::getEstimationEquations(gtsam::Point3& point) {
+	Eigen::Matrix<double, Eigen::Dynamic, 4> Camera::getEstimationEquations(gtsam::Point3& point, bool addSensorNoise) {
 		Eigen::Matrix<double, Eigen::Dynamic, 4> equations;
 
 		// get equation for horizontal detector
 		Eigen::Matrix<double, 1, 4> tmpMat;
 		try {
-			tmpMat << mHorizontalDetector.getEstimationEquation(point);	// store in tmp variable to see if an error is thrown
+			tmpMat << mHorizontalDetector.getEstimationEquation(point, addSensorNoise);	// store in tmp variable to see if an error is thrown
 			equations.conservativeResize(equations.rows() + 1, 4);
 			equations.row(equations.rows() - 1) = tmpMat;
 		}
@@ -54,7 +50,7 @@ namespace PSS {
 
 		// get equation for vertical detector
 		try {
-			tmpMat << mVerticalDetector.getEstimationEquation(point);	// store in tmp variable to see if an error is thrown
+			tmpMat << mVerticalDetector.getEstimationEquation(point, addSensorNoise);	// store in tmp variable to see if an error is thrown
 			equations.conservativeResize(equations.rows() + 1, 4);
 			equations.row(equations.rows() - 1) = tmpMat;
 		}

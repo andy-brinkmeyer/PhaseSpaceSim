@@ -16,29 +16,30 @@ TEST(CoreTest, EstimationTest) {
 	// create cameras
 	double fieldOfView{ 120 };
 	double sensorWidth{ 0.1 };
+	double sensorVariance{ 0.001 };
 
 	gtsam::Point3 position1{ 0.0, 0.0, 0.0 };
 	gtsam::Rot3 rotation1{ 1.0, 0.0, 0.0, 0.0 };
 	gtsam::Pose3 pose1{ rotation1, position1 };
-	PSS::Camera camera1{ fieldOfView, sensorWidth, pose1 };
+	PSS::Camera* camera1 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose1 };
 
 	gtsam::Point3 position2{ -5.0, 1.0, 0.0 };
 	gtsam::Rot3 rotation2{ 1, 0, 0, 0 };
 	gtsam::Pose3 pose2{ rotation2, position2 };
-	PSS::Camera camera2{ fieldOfView, sensorWidth, pose2 };
+	PSS::Camera* camera2 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose2 };
 
 	gtsam::Point3 position3{ 0.0, 0.0, 10.0 };
 	gtsam::Rot3 rotation3{ 0, 0, 1, 0 };
 	gtsam::Pose3 pose3{ rotation3, position3 };
-	PSS::Camera camera3{ fieldOfView, sensorWidth, pose3 };
+	PSS::Camera* camera3 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose3 };
 	
 	// create core
-	PSS::CameraMap cameraMap{
-		{ "Cam1", camera1 },
-		{ "Cam2", camera2 },
-		{ "Cam3", camera3 }
+	PSS::CameraMap* cameraMap = new PSS::CameraMap{
+		{ "Cam1", *camera1 },
+		{ "Cam2", *camera2 },
+		{ "Cam3", *camera3 }
 	};
-	PSS::Core core{ cameraMap };
+	PSS::Core core{ *cameraMap };
 
 	// estimate point
 	gtsam::Point3 knownPoint{ -2.5, 0.5, 5.0 };
@@ -47,7 +48,8 @@ TEST(CoreTest, EstimationTest) {
 	cameraList.push_back("Cam2");
 	cameraList.push_back("Cam3");
 
-	gtsam::Point3 estimatedPoint{ core.estimateFromCameras(knownPoint, cameraList) };
+	bool addSensorNoise{ false };
+	gtsam::Point3 estimatedPoint{ core.estimateFromCameras(knownPoint, cameraList, addSensorNoise) };
 	ASSERT_TRUE(estimatedPoint.isApprox(knownPoint));
 
 	// test for underdetermined system
