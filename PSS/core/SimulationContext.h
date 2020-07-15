@@ -26,7 +26,7 @@ namespace PSS {
 
 	// struct that resembles a measurement line
 	struct Measurement {
-		bool valid; // is true if the measurement is valid, is false if not (e.g. when the line could not be read)
+		bool valid{ false }; // is true if the measurement is valid, is false if not (e.g. when the line could not be read)
 		int frame; // camera frame
 		double time; // time at current frame
 		std::string marker; // marker ID
@@ -60,6 +60,7 @@ namespace PSS {
 
 		// getters
 		MetaData& metaData();
+		Measurement& currentMeasurement();
 
 		// read measurements
 		Measurement& nextMeasurement();

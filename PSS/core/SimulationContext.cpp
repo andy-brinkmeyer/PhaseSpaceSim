@@ -62,6 +62,7 @@ namespace PSS {
 
 	// getters
 	MetaData& SimulationContext::metaData() { return mMetaData; }
+	Measurement& SimulationContext::currentMeasurement() { return mCurrentMeasurement; }
 
 	// read measurements
 	Measurement& SimulationContext::nextMeasurement() {
@@ -95,6 +96,7 @@ namespace PSS {
 				camerasString.erase(0, pos + 1);
 			}
 			cameras.push_back(camerasString);
+			mCurrentMeasurement.cameras = cameras;
 
 			// create all the other data types
 			mCurrentMeasurement.position = gtsam::Point3{ x, y, z };
