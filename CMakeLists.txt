@@ -36,4 +36,4 @@ endif()
 
 # executable for some dev testing
 add_executable(TEST_EXE "test.cpp")
-target_include_directories(TEST_EXE PUBLIC ${Eigen_INCLUDE_DIR})
+target_include_directories(TEST_EXE PUBLIC ${Eigen_INCLUDE_DIR} "PSS/3rdparty")
