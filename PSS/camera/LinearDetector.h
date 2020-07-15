@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Dense>
+#include <Eigen/Core>
 #include <gtsam/geometry/Point3.h>
 #include <gtsam/geometry/Pose3.h>
 
