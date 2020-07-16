@@ -42,7 +42,10 @@ namespace PSS {
 			gtsam::Pose3 cameraPose{ cameraRotation, cameraPosition };
 			CameraConfig cameraConfig{
 				cameraObject["id"],
-				cameraPose
+				cameraPose,
+				cameraObject["fieldOfView"],
+				cameraObject["sensorWidth"],
+				cameraObject["sensorVariance"]
 			};
 			cameras.push_back(cameraConfig);
 		}
@@ -61,7 +64,7 @@ namespace PSS {
 			"frame", "t", "markerID", "cameras", "x", "y", "z", "q0", "q1", "q2", "q3", "ax", "ay", "az", "wx", "wy", "wz");
 
 		// prepare the output
-		mOutputStream.open(mOutputPath, std::ios_base::app);
+		mOutputStream.open(mOutputPath);
 		std::string header{ "frame,t,marker,trueX,trueY,trueZ,x,y,z" };
 		mOutputStream << header << std::endl;
 	}

@@ -52,13 +52,13 @@ namespace PSS {
 	{ }
 
 	// getters
-	double LinearDetector::focalLength() { return mFocalLength; }
-	double LinearDetector::sensorWidth() { return mSensorWidth; }
-	double LinearDetector::sensorVariance() { return mSensorVariance; }
-	double LinearDetector::centerOffset() { return mCenterOffset; }
-	gtsam::Pose3& LinearDetector::pose() { return mPose; }
-	LinearDetector::ProjectionMatrix& LinearDetector::projectionMatrix() { return mProjectionMatrix; }
-	LinearDetector::ProjectionMatrix& LinearDetector::calibratedProjectionMatrix() { return mCalibratedProjectionMatrix; }
+	double LinearDetector::focalLength() const { return mFocalLength; }
+	double LinearDetector::sensorWidth() const { return mSensorWidth; }
+	double LinearDetector::sensorVariance() const { return mSensorVariance; }
+	double LinearDetector::centerOffset() const { return mCenterOffset; }
+	const gtsam::Pose3& LinearDetector::pose() const { return mPose; }
+	const LinearDetector::ProjectionMatrix& LinearDetector::projectionMatrix() const { return mProjectionMatrix; }
+	const LinearDetector::ProjectionMatrix& LinearDetector::calibratedProjectionMatrix() const { return mCalibratedProjectionMatrix; }
 
 	// projection
 	double LinearDetector::projectPoint(const gtsam::Point3 &point, bool addNoise) {

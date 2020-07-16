@@ -24,7 +24,7 @@ TEST(CameraTest, ConstructorTest) {
 	PSS::Camera* camera = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose };
 
 	// check for horizontal detector
-	PSS::LinearDetector* horizontalDetector = &camera->horizontalDetector();
+	const PSS::LinearDetector* horizontalDetector = &camera->horizontalDetector();
 	double expectedFocalLength{ 0.05 };
 	double delta{ std::abs(expectedFocalLength - horizontalDetector->focalLength()) };
 	double epsilon{ 0.000001 };
@@ -34,7 +34,7 @@ TEST(CameraTest, ConstructorTest) {
 	ASSERT_TRUE(horizontalDetector->pose().rotation().equals(rotation));
 
 	// check for vertical detector
-	PSS::LinearDetector* verticalDetector = &camera->verticalDetector();
+	const PSS::LinearDetector* verticalDetector = &camera->verticalDetector();
 	delta = std::abs(expectedFocalLength - verticalDetector->focalLength());
 	ASSERT_TRUE(delta < epsilon);
 

@@ -50,13 +50,13 @@ namespace PSS {
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		// getters
-		double focalLength();
-		double sensorWidth();
-		double sensorVariance();
-		double centerOffset();
-		gtsam::Pose3& pose();
-		ProjectionMatrix& projectionMatrix();
-		ProjectionMatrix& calibratedProjectionMatrix();
+		double focalLength() const;
+		double sensorWidth() const;
+		double sensorVariance() const;
+		double centerOffset() const;
+		const gtsam::Pose3& pose() const;
+		const ProjectionMatrix& projectionMatrix() const;
+		const ProjectionMatrix& calibratedProjectionMatrix() const;
 
 		// projection
 		double projectPoint(const gtsam::Point3 &point, bool addNoise = true);

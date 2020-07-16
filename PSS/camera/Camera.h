@@ -23,8 +23,8 @@ namespace PSS {
 		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
 
 		// getters
-		LinearDetector& horizontalDetector();
-		LinearDetector& verticalDetector();
+		const LinearDetector& horizontalDetector() const;
+		const LinearDetector& verticalDetector() const;
 
 		// estimation
 		Eigen::Matrix<double, Eigen::Dynamic, 4> getEstimationEquations(const gtsam::Point3& point, bool addSensorNoise = true);

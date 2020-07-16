@@ -18,8 +18,16 @@ namespace PSS {
 	// constructors
 	Core::Core(const CameraMap& cameras) : mCameras{ cameras } { }
 
+	Core::Core(SimulationContext& simContext) {
+		const std::vector<CameraConfig>& cameraConfigs{ simContext.metaData().cameras };
+		for (int i{ 0 }; i < cameraConfigs.size(); i++) {
+			Camera camera{ cameraConfigs[i].fieldOfView, cameraConfigs[i].sensorWidth, cameraConfigs[i].sensorVariance, cameraConfigs[i].pose };
+			mCameras.insert({ cameraConfigs[i].id, camera });
+		}
+	}
+
 	// getters
-	CameraMap& Core::cameras() { return mCameras; };
+	const CameraMap& Core::cameras() const { return mCameras; };
 
 	// estimation
 	gtsam::Point3 Core::estimateFromCameras(const gtsam::Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) {

@@ -20,9 +20,10 @@ namespace PSS {
 	public:
 		// cosntructors
 		Core(const CameraMap& cameras);
+		Core(SimulationContext& simContext);
 
 		// getters
-		CameraMap& cameras();
+		const CameraMap& cameras() const;
 
 		// estimation
 		gtsam::Point3 estimateFromCameras(const gtsam::Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise = true);

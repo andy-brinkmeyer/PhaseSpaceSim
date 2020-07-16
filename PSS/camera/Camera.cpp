@@ -32,8 +32,8 @@ namespace PSS {
 		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
 
 	// getters
-	LinearDetector& Camera::horizontalDetector() { return mHorizontalDetector; }
-	LinearDetector& Camera::verticalDetector() { return mVerticalDetector; }
+	const LinearDetector& Camera::horizontalDetector() const { return mHorizontalDetector; }
+	const LinearDetector& Camera::verticalDetector() const { return mVerticalDetector; }
 
 	// estimation
 	Eigen::Matrix<double, Eigen::Dynamic, 4> Camera::getEstimationEquations(const gtsam::Point3& point, bool addSensorNoise) {

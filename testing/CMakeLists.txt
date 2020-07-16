@@ -5,7 +5,7 @@ add_executable(PSS_test
 	"camera/LinearDetectorTest.cpp" 
 	"camera/CameraTest.cpp"
 	"core/CoreTest.cpp"
-	"core/SimulationContextTest.cpp")
+	"core/SimulationContextTest.h" "core/SimulationContextTest.cpp")
 target_include_directories(PSS_test PUBLIC
 	${PSS_INCLUDE_DIR}
 	${GTEST_INCLUDE_DIR}

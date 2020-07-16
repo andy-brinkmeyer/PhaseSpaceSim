@@ -1,5 +1,8 @@
+#include "SimulationContextTest.h"
 #include <core/Core.h>
+#include <core/SimulationContext.h>
 #include <camera/Camera.h>
+#include <camera/LinearDetector.h>
 #include <core/SimulationContext.h>
 
 #include <gtest/gtest.h>
@@ -12,7 +15,41 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <cmath>
 
+
+// create fixture
+class CoreTestWithContext : public SimulationContextFixture { };
+
+TEST_F(CoreTestWithContext, ConstructFromSimContextTest) {
+	// create simulation context
+	PSS::SimulationContext simContext{ metaDataPath, measurementsPath, outputPath };
+
+	// create the core object
+	PSS::Core core{ simContext };
+
+	// check if the cameras are set up correctly
+	ASSERT_EQ(core.cameras().size(), numCameras);
+	PSS::CameraMap::const_iterator foundCamera{ core.cameras().find(camera2ID) };
+	const PSS::Camera& cam2{ foundCamera->second };
+	const PSS::LinearDetector& horizontalDet{ cam2.horizontalDetector() };
+	ASSERT_TRUE(horizontalDet.pose().translation().isApprox(camera2Pos)); // check position
+	ASSERT_TRUE(horizontalDet.pose().rotation().matrix().isApprox(camera2Rot.matrix())); // check rotation
+
+	// check focal length
+	double focalLength{ sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))) };
+	double delta{ std::abs(horizontalDet.focalLength() - focalLength) };
+	double epsilon{ 0.000001 };
+	ASSERT_TRUE(delta < epsilon);
+
+	// check sensor width and variance
+	delta = std::abs(horizontalDet.sensorWidth() - sensorWidth);
+	ASSERT_TRUE(delta < epsilon);
+	delta = std::abs(horizontalDet.sensorVariance() - sensorVariance);
+	ASSERT_TRUE(delta < epsilon);
+
+	// if all the above are true then we assume that the other cameras have been properly intialized as well
+}
 
 TEST(CoreTest, EstimationTest) {
 	// create cameras
