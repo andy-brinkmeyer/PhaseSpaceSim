@@ -27,6 +27,6 @@ namespace PSS {
 		LinearDetector& verticalDetector();
 
 		// estimation
-		Eigen::Matrix<double, Eigen::Dynamic, 4> getEstimationEquations(gtsam::Point3& point, bool addSensorNoise = true);
+		Eigen::Matrix<double, Eigen::Dynamic, 4> getEstimationEquations(const gtsam::Point3& point, bool addSensorNoise = true);
 	};
 }

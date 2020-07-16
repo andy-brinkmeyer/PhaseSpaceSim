@@ -24,7 +24,7 @@ public:
 	SimulationContextTest()
 		: metaDataPath{ "SimContTestMetaData.json" }
 		, measurementsPath{ "SimContMeasurementsTest.csv" }
-		, outputPath { "output.csv" }
+		, outputPath { "SimContOutput.csv" }
 		, metadataJson{ "{\"cameras\":"
 			"[{\"id\":\"Camera_1\",\"position\":{\"x\":0.0,\"y\":1.0,\"z\":2.0},\"rotation\":{\"q0\":1.0,\"q1\":0.0,\"q2\":0.0,\"q3\":0.0}},"
 			"{\"id\":\"Camera_2\",\"position\":{\"x\":1.0,\"y\":0.0,\"z\":0.0},\"rotation\":{\"q0\":0.0,\"q1\":0.0,\"q2\":-1.0,\"q3\":0.0}}],"
@@ -50,7 +50,8 @@ public:
 
 	~SimulationContextTest() {
 		std::remove(metaDataPath.c_str());
-		remove(measurementsPath.c_str());
+		std::remove(measurementsPath.c_str());
+		// std::remove(outputPath.c_str());
 	}
 };
 
@@ -77,7 +78,7 @@ TEST_F(SimulationContextTest, ConstructorTest) {
 	PSS::SimulationContext simContext{ metaDataPath, measurementsPath, outputPath };
 
 	// check if json was properly parsed
-	PSS::MetaData& metaData{ simContext.metaData() };
+	const PSS::MetaData& metaData{ simContext.metaData() };
 
 	ASSERT_EQ(metaData.cameras.size(), numCameras);
 	ASSERT_EQ(metaData.cameras[camera1Idx].id, camera1ID);
@@ -114,7 +115,7 @@ TEST_F(SimulationContextTest, NextMeasurementTest) {
 	PSS::SimulationContext simContext{ metaDataPath, measurementsPath, outputPath };
 
 	// check if measurement is correctly initialized
-	PSS::Measurement& measurement{ simContext.currentMeasurement() };
+	const PSS::Measurement& measurement{ simContext.currentMeasurement() };
 	ASSERT_FALSE(measurement.valid);
 
 	// test the measurements struct for the first row

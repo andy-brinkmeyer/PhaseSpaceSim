@@ -59,10 +59,10 @@ namespace PSS {
 		ProjectionMatrix& calibratedProjectionMatrix();
 
 		// projection
-		double projectPoint(gtsam::Point3 &point, bool addNoise = true);
-		double safeProjectPoint(gtsam::Point3& point, bool addNoise = true);
+		double projectPoint(const gtsam::Point3 &point, bool addNoise = true);
+		double safeProjectPoint(const gtsam::Point3& point, bool addNoise = true);
 
 		// estimation
-		Eigen::Matrix<double, 1, 4> getEstimationEquation(gtsam::Point3& point, bool addSensorNoise = true);
+		Eigen::Matrix<double, 1, 4> getEstimationEquation(const gtsam::Point3& point, bool addSensorNoise = true);
 	};
 }

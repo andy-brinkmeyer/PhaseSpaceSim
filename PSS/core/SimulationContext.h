@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
 
 
 namespace PSS {
@@ -54,15 +55,24 @@ namespace PSS {
 		io::CSVReader<17> mCsvReader;
 		Measurement mCurrentMeasurement;
 
+		// output
+		std::ofstream mOutputStream;
+
 	public:
 		// constructors
 		SimulationContext(const std::string& metaPath, const std::string& measurementsPath, const std::string& outputPath);
 
+		// destructor
+		~SimulationContext();
+
 		// getters
-		MetaData& metaData();
-		Measurement& currentMeasurement();
+		const MetaData& metaData();
+		const Measurement& currentMeasurement();
 
 		// read measurements
 		Measurement& nextMeasurement();
+
+		// output
+		void writeEstimate(const std::string& marker, const gtsam::Point3& estimate, const Measurement& measurement);
 	};
 }

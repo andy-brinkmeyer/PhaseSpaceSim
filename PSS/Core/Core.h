@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../camera/Camera.h"
+#include "SimulationContext.h"
 
 #include <gtsam/geometry/Point3.h>
 
@@ -24,9 +25,11 @@ namespace PSS {
 		CameraMap& cameras();
 
 		// estimation
-		gtsam::Point3 estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras, bool addSensorNoise = true);
+		gtsam::Point3 estimateFromCameras(const gtsam::Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise = true);
+		void simulateCameraOnly(SimulationContext& simContext, bool addSensorNoise = true);
 	};
 
+	// custom exception
 	class UnderdeterminedSystem : public std::exception {
 		std::string mMsg;
 

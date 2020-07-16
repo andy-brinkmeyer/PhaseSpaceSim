@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 
 namespace PSS {
@@ -58,11 +59,21 @@ namespace PSS {
 		// prepare the csv reader
 		mCsvReader.read_header(io::ignore_no_column, 
 			"frame", "t", "markerID", "cameras", "x", "y", "z", "q0", "q1", "q2", "q3", "ax", "ay", "az", "wx", "wy", "wz");
+
+		// prepare the output
+		mOutputStream.open(mOutputPath, std::ios_base::app);
+		std::string header{ "frame,t,marker,trueX,trueY,trueZ,x,y,z" };
+		mOutputStream << header << std::endl;
+	}
+
+	// destructor
+	SimulationContext::~SimulationContext() {
+		mOutputStream.close();
 	}
 
 	// getters
-	MetaData& SimulationContext::metaData() { return mMetaData; }
-	Measurement& SimulationContext::currentMeasurement() { return mCurrentMeasurement; }
+	const MetaData& SimulationContext::metaData() { return mMetaData; }
+	const Measurement& SimulationContext::currentMeasurement() { return mCurrentMeasurement; }
 
 	// read measurements
 	Measurement& SimulationContext::nextMeasurement() {
@@ -106,5 +117,14 @@ namespace PSS {
 		}
 
 		return mCurrentMeasurement;
+	}
+
+	// output
+	void SimulationContext::writeEstimate(const std::string& marker, const gtsam::Point3& estimate, const Measurement& measurement) {
+		std::stringstream outputLine;
+		outputLine << std::to_string(measurement.frame) << ',' << std::to_string(measurement.time) << ',' << marker << ','
+			<< std::to_string(measurement.position.x()) << ',' << std::to_string(measurement.position.y()) << ',' << std::to_string(measurement.position.z()) << ','
+			<< std::to_string(estimate.x()) << ',' << std::to_string(estimate.y()) << ',' << std::to_string(estimate.z()) << std::endl;
+		mOutputStream << outputLine.str();
 	}
 }

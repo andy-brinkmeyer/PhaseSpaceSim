@@ -1,6 +1,7 @@
 #include "Core.h"
 
 #include "../camera/Camera.h"
+#include "SimulationContext.h"
 
 #include <Eigen/Dense>
 #include <gtsam/geometry/Point3.h>
@@ -10,6 +11,7 @@
 #include <string>
 #include <exception>
 #include <cstddef>
+#include <cmath>
 
 
 namespace PSS {
@@ -20,7 +22,7 @@ namespace PSS {
 	CameraMap& Core::cameras() { return mCameras; };
 
 	// estimation
-	gtsam::Point3 Core::estimateFromCameras(gtsam::Point3& point, std::vector<std::string>& cameras, bool addSensorNoise) {
+	gtsam::Point3 Core::estimateFromCameras(const gtsam::Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) {
 		Eigen::Matrix<double, Eigen::Dynamic, 4> estimationEquations;
 
 		for (const std::string& cameraID : cameras) {
@@ -62,10 +64,24 @@ namespace PSS {
 		}
 	}
 
-	// custom exception implementation
-	UnderdeterminedSystem::UnderdeterminedSystem(const std::string& msg) {
-		mMsg = msg;
+	void Core::simulateCameraOnly(SimulationContext& simContext, bool addSensorNoise) {
+		// read first measurement
+		const Measurement& currentMeasurement{ simContext.currentMeasurement() };
+		simContext.nextMeasurement();
+		while (currentMeasurement.valid) {
+			gtsam::Point3 estimate;
+			try {
+				estimate = gtsam::Point3{ estimateFromCameras(currentMeasurement.position, currentMeasurement.cameras, addSensorNoise) };
+			} catch (const UnderdeterminedSystem e) {
+				estimate = gtsam::Point3{ std::nan(""), std::nan(""), std::nan("") };
+			}
+			simContext.writeEstimate(currentMeasurement.marker, estimate, currentMeasurement);
+			simContext.nextMeasurement();
+		}
 	}
+
+	// custom exception implementation
+	UnderdeterminedSystem::UnderdeterminedSystem(const std::string& msg) : mMsg{ msg } { }
 
 	const char* UnderdeterminedSystem::what() const throw () {
 		return mMsg.c_str();

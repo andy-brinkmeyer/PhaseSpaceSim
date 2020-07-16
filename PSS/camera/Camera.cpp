@@ -36,7 +36,7 @@ namespace PSS {
 	LinearDetector& Camera::verticalDetector() { return mVerticalDetector; }
 
 	// estimation
-	Eigen::Matrix<double, Eigen::Dynamic, 4> Camera::getEstimationEquations(gtsam::Point3& point, bool addSensorNoise) {
+	Eigen::Matrix<double, Eigen::Dynamic, 4> Camera::getEstimationEquations(const gtsam::Point3& point, bool addSensorNoise) {
 		Eigen::Matrix<double, Eigen::Dynamic, 4> equations;
 
 		// get equation for horizontal detector

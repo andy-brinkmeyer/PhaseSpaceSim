@@ -61,7 +61,7 @@ namespace PSS {
 	LinearDetector::ProjectionMatrix& LinearDetector::calibratedProjectionMatrix() { return mCalibratedProjectionMatrix; }
 
 	// projection
-	double LinearDetector::projectPoint(gtsam::Point3 &point, bool addNoise) {
+	double LinearDetector::projectPoint(const gtsam::Point3 &point, bool addNoise) {
 		Eigen::Matrix<double, 4, 1> pointH{ point.homogeneous() };
 		Eigen::Matrix<double, 2, 1> projectedH{ mProjectionMatrix * pointH };
 		double projected;
@@ -74,7 +74,7 @@ namespace PSS {
 		return projected;
 	}
 
-	double LinearDetector::safeProjectPoint(gtsam::Point3 &point, bool addNoise) {
+	double LinearDetector::safeProjectPoint(const gtsam::Point3 &point, bool addNoise) {
 		// transform the point to camera frame
 		gtsam::Point3 pointCamera{ mPose.transformTo(point) };
 		
@@ -109,7 +109,7 @@ namespace PSS {
 	}
 
 	// estimation
-	Eigen::Matrix<double, 1, 4> LinearDetector::getEstimationEquation(gtsam::Point3& point, bool addSensorNoise) {
+	Eigen::Matrix<double, 1, 4> LinearDetector::getEstimationEquation(const gtsam::Point3& point, bool addSensorNoise) {
 		double measurement{ safeProjectPoint(point, addSensorNoise) };
 		Eigen::Matrix<double, 1, 4> estimationEquation{ (measurement * mC2) - mC1 };
 		return estimationEquation;
