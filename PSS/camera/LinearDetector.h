@@ -27,7 +27,7 @@ namespace PSS {
 		// projection
 		ProjectionMatrix mProjectionMatrix;
 		ProjectionMatrix mCalibratedProjectionMatrix;
-		ProjectionMatrix computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose);
+		ProjectionMatrix computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose) const;
 
 		// estimation
 		Eigen::Matrix<double, 1, 4> mC1;	// first row of projection matrix for quick access

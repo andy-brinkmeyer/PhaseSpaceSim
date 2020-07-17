@@ -92,7 +92,7 @@ namespace PSS {
 		return projectedPoint;
 	}
 
-	LinearDetector::ProjectionMatrix LinearDetector::computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose) {
+	LinearDetector::ProjectionMatrix LinearDetector::computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose) const {
 		Eigen::Matrix<double, 2, 3> intrinsics;
 		intrinsics << focalLength, 0, centerOffset,
 			0, 0, 1;
