@@ -2,7 +2,9 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <json/json.hpp>
 
 int main(int argc, char* argv[]) {
-	std::cout << std::nan("");
+	nlohmann::json j = "{ \"happy\": true, \"pi\": -1E-6 }"_json;
+	std::cout << std::fixed << (double)(j["pi"]) << std::endl;
 }

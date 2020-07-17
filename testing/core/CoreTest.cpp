@@ -100,31 +100,9 @@ TEST(CoreTest, EstimationTest) {
 /*
 // This one is just for quick testing, will be removed once the proper tests are written.
 TEST(CoreTest, SimulateCameraOnlyTest) {
-	double fieldOfView{ 120 };
-	double sensorWidth{ 0.1 };
-	double sensorVariance{ 0.000001 };
-
-	gtsam::Point3 position1{ 0.0, 9.5, 2.5 };
-	Eigen::Matrix3d rot1;
-	rot1 << -1, 0, 0, 0, 0, -1, 0, -1, 0;
-	gtsam::Rot3 rotation1{ rot1 };
-	gtsam::Pose3 pose1{ rotation1, position1 };
-	PSS::Camera* camera1 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose1 };
-
-	gtsam::Point3 position2{ 0.0, -9.5, 2.5 };
-	Eigen::Matrix3d rot2;
-	rot2 << 1, 0, 0, 0, 0, 1, 0, -1, 0;
-	gtsam::Rot3 rotation2{ rot2 };
-	gtsam::Pose3 pose2{ rotation2, position2 };
-	PSS::Camera* camera2 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose2 };
-
-	PSS::CameraMap* cameraMap = new PSS::CameraMap{
-		{ "Camera_1", *camera1 },
-		{ "Camera_2", *camera2 }
-	};
-
 	PSS::SimulationContext simContext{ "meta.json", "measurements.csv", "out.csv" };
-	PSS::Core core{ *cameraMap };
+	PSS::Core core{ simContext };
+	Eigen::Matrix3d mat{ core.cameras().find("Camera_1")->second.horizontalDetector().pose().rotation().matrix() };
 	core.simulateCameraOnly(simContext);
 }
 */

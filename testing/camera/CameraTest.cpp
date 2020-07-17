@@ -40,6 +40,6 @@ TEST(CameraTest, ConstructorTest) {
 
 	ASSERT_EQ(verticalDetector->pose().translation(), position);
 
-	gtsam::Rot3 expectedRot{ M_SQRT1_2, 0, 0, -M_SQRT1_2 }; // the vertical detector is rotated by -90 degress around the z-axis
+	gtsam::Rot3 expectedRot{ M_SQRT1_2, 0, 0, M_SQRT1_2 }; // the vertical detector is rotated by -90 degress around the z-axis
 	ASSERT_TRUE(verticalDetector->pose().rotation().equals(expectedRot));
 }

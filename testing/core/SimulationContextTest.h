@@ -59,8 +59,8 @@ public:
 		, measurementsPath{ "SimContMeasurementsTest.csv" }
 		, outputPath{ "SimContOutput.csv" }
 		, metadataJson{ "{\"cameras\":"
-			"[{\"id\":\"Camera_1\",\"fieldOfView\":120,\"sensorWidth\":0.1,\"sensorVariance\":0.000001,\"position\":{\"x\":0.0,\"y\":1.0,\"z\":2.0},\"rotation\":{\"q0\":1.0,\"q1\":0.0,\"q2\":0.0,\"q3\":0.0}},"
-			"{\"id\":\"Camera_2\",\"fieldOfView\":120,\"sensorWidth\":0.1,\"sensorVariance\":0.000001,\"position\":{\"x\":1.0,\"y\":0.0,\"z\":0.0},\"rotation\":{\"q0\":0.0,\"q1\":0.0,\"q2\":-1.0,\"q3\":0.0}}],"
+			"[{\"id\":\"Camera_1\",\"fieldOfView\":120,\"sensorWidth\":0.1,\"sensorVariance\":1E-6,\"position\":{\"x\":0.0,\"y\":1.0,\"z\":2.0},\"rotation\":{\"q0\":1.0,\"q1\":0.0,\"q2\":0.0,\"q3\":0.0}},"
+			"{\"id\":\"Camera_2\",\"fieldOfView\":120,\"sensorWidth\":0.1,\"sensorVariance\":1E-6,\"position\":{\"x\":1.0,\"y\":0.0,\"z\":0.0},\"rotation\":{\"q0\":0.0,\"q1\":0.0,\"q2\":-1.0,\"q3\":0.0}}],"
 			"\"markers\":[\"Marker_1\",\"Marker_2\"],\"samplingRate\":1000}" }
 		, measurementsString{ "frame,t,markerID,cameras,x,y,z,q0,q1,q2,q3,ax,ay,az,wx,wy,wz\n"
 			"0,0,Marker_1,Camera_1;Camera_2,1.0,2.0,3.0,1.0,0.0,0.0,0.0,10.0,11.0,12.0,13.0,14.0,15.0\n"

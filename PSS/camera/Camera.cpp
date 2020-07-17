@@ -67,7 +67,7 @@ namespace PSS {
 
 	// helper functions
 	gtsam::Pose3 Camera::rotateToVertical(const gtsam::Pose3& pose) {
-		gtsam::Rot3 rot{ M_SQRT1_2, 0, 0, -M_SQRT1_2 };
+		gtsam::Rot3 rot{ M_SQRT1_2, 0, 0, M_SQRT1_2 };
 		gtsam::Pose3 rotatedPose{ rot * pose.rotation(), pose.translation() };
 		return rotatedPose;
 	}
