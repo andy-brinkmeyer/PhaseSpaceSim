@@ -73,11 +73,11 @@ TEST(CoreTest, EstimationTest) {
 	PSS::Camera* camera3 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose3 };
 	
 	// create core
-	PSS::CameraMap* cameraMap = new PSS::CameraMap{
-		{ "Cam1", *camera1 },
-		{ "Cam2", *camera2 },
-		{ "Cam3", *camera3 }
-	};
+	PSS::CameraMap* cameraMap = new PSS::CameraMap{ };
+	cameraMap->insert({ "Cam1", *camera1 });
+	cameraMap->insert({ "Cam2", *camera2 });
+	cameraMap->insert({ "Cam3", *camera3 });
+
 	PSS::Core core{ *cameraMap };
 
 	// estimate point
