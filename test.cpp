@@ -6,5 +6,5 @@
 
 int main(int argc, char* argv[]) {
 	nlohmann::json j = "{ \"happy\": true, \"pi\": -1E-6 }"_json;
-	std::cout << std::fixed << (double)(j["pi"]) << std::endl;
+	std::cout << j["a"] << std::endl;
 }

@@ -17,6 +17,7 @@ namespace PSS {
 	struct CameraConfig {
 		std::string id;
 		gtsam::Pose3 pose;
+		gtsam::Pose3 calibratedPose;
 		double fieldOfView;
 		double sensorWidth;
 		double sensorVariance;

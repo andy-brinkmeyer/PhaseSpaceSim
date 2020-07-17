@@ -21,7 +21,7 @@ namespace PSS {
 	Core::Core(SimulationContext& simContext) {
 		const std::vector<CameraConfig>& cameraConfigs{ simContext.metaData().cameras };
 		for (int i{ 0 }; i < cameraConfigs.size(); i++) {
-			Camera camera{ cameraConfigs[i].fieldOfView, cameraConfigs[i].sensorWidth, cameraConfigs[i].sensorVariance, cameraConfigs[i].pose };
+			Camera camera{ cameraConfigs[i].fieldOfView, cameraConfigs[i].sensorWidth, cameraConfigs[i].sensorVariance, cameraConfigs[i].pose, cameraConfigs[i].calibratedPose };
 			mCameras.insert({ cameraConfigs[i].id, camera });
 		}
 	}

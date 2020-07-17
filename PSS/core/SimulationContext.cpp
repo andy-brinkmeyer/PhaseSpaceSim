@@ -40,9 +40,36 @@ namespace PSS {
 				cameraObject["rotation"]["q3"]
 			};
 			gtsam::Pose3 cameraPose{ cameraRotation, cameraPosition };
+
+			// check if calibrated position and rotation are provided
+			gtsam::Point3 calibratedCameraPosition;
+			if (cameraObject["calibratedPosition"] == nullptr) {
+				calibratedCameraPosition = gtsam::Point3{ cameraPosition };
+			}
+			else {
+				calibratedCameraPosition = gtsam::Point3{
+				cameraObject["calibratedPosition"]["x"],
+				cameraObject["calibratedPosition"]["y"],
+				cameraObject["calibratedPosition"]["z"]
+				};
+			}
+			gtsam::Rot3 calibratedCameraRotation;
+			if (cameraObject["calibratedRotation"] == nullptr) {
+				calibratedCameraRotation = gtsam::Rot3{ cameraRotation };
+			}
+			else {
+				calibratedCameraRotation = gtsam::Rot3{
+				cameraObject["calibratedRotation"]["q0"],
+				cameraObject["calibratedRotation"]["q1"],
+				cameraObject["calibratedRotation"]["q2"],
+				cameraObject["calibratedRotation"]["q3"]
+				};
+			}
+			gtsam::Pose3 calibratedCameraPose{ calibratedCameraRotation, calibratedCameraPosition };
 			CameraConfig cameraConfig{
 				cameraObject["id"],
 				cameraPose,
+				calibratedCameraPose,
 				cameraObject["fieldOfView"],
 				cameraObject["sensorWidth"],
 				cameraObject["sensorVariance"]
