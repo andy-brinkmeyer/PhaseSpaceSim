@@ -102,7 +102,6 @@ TEST(CoreTest, EstimationTest) {
 TEST(CoreTest, SimulateCameraOnlyTest) {
 	PSS::SimulationContext simContext{ "meta.json", "measurements.csv", "out.csv" };
 	PSS::Core core{ simContext };
-	Eigen::Matrix3d mat{ core.cameras().find("Camera_1")->second.horizontalDetector().pose().rotation().matrix() };
 	core.simulateCameraOnly(simContext);
 }
 */
