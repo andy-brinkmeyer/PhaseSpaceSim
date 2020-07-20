@@ -11,7 +11,7 @@
 
 
 namespace PSS {
-	typedef std::unordered_map<std::string, Camera, std::hash<std::string>, std::equal_to<std::string>, Eigen::aligned_allocator<std::pair<const std::string, Camera>>> CameraMap;
+	typedef std::unordered_map<std::string, Camera> CameraMap;
 
 	class Core {
 		CameraMap mCameras;

@@ -14,7 +14,7 @@ namespace PSS {
 		typedef Eigen::Matrix<double, 2, 4> ProjectionMatrix;
 
 	private:
-		// instrinsics
+		// intrinsics
 		double mFocalLength;
 		double mSensorWidth;
 		double mSensorVariance;
@@ -45,9 +45,6 @@ namespace PSS {
 		LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
 		LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose);
 		LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
-
-		// macro for Eigen to peroperly handle the alignement of fixed size matrices
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		// getters
 		double focalLength() const;
