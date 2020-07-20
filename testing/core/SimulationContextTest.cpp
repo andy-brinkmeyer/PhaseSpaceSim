@@ -1,10 +1,11 @@
 #include "SimulationContextTest.h"
+
 #include <core/SimulationContext.h>
+#include <geometry/Rot3.h>
+#include <geometry/Pose3.h>
 
 #include <gtest/gtest.h>
 #include <Eigen/Core>
-#include <gtsam/geometry/Point3.h>
-#include <gtsam/geometry/Rot3.h>
 
 #include <string>
 #include <fstream>

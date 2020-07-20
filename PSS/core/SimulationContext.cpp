@@ -1,10 +1,10 @@
 #include "SimulationContext.h"
 
+#include "../geometry/Rot3.h"
+#include "../geometry/Pose3.h"
+
 #include <json/json.hpp>
 #include <Eigen/Core>
-#include <gtsam/geometry/Point3.h>
-#include <gtsam/geometry/Rot3.h>
-#include <gtsam/geometry/Pose3.h>
 
 #include <fstream>
 #include <string>
@@ -28,44 +28,44 @@ namespace PSS {
 		std::vector<CameraConfig> cameras;
 		for (int i{ 0 }; i < mJson["cameras"].size(); i++) {
 			nlohmann::json cameraObject{ mJson["cameras"][i] };
-			gtsam::Point3 cameraPosition{ 
+			Point3 cameraPosition{ 
 				cameraObject["position"]["x"],
 				cameraObject["position"]["y"],
 				cameraObject["position"]["z"]
 			};
-			gtsam::Rot3 cameraRotation{
+			Rot3 cameraRotation{
 				cameraObject["rotation"]["q0"],
 				cameraObject["rotation"]["q1"],
 				cameraObject["rotation"]["q2"],
 				cameraObject["rotation"]["q3"]
 			};
-			gtsam::Pose3 cameraPose{ cameraRotation, cameraPosition };
+			Pose3 cameraPose{ cameraRotation, cameraPosition };
 
 			// check if calibrated position and rotation are provided
-			gtsam::Point3 calibratedCameraPosition;
+			Point3 calibratedCameraPosition;
 			if (cameraObject["calibratedPosition"] == nullptr) {
-				calibratedCameraPosition = gtsam::Point3{ cameraPosition };
+				calibratedCameraPosition = Point3{ cameraPosition };
 			}
 			else {
-				calibratedCameraPosition = gtsam::Point3{
+				calibratedCameraPosition = Point3{
 				cameraObject["calibratedPosition"]["x"],
 				cameraObject["calibratedPosition"]["y"],
 				cameraObject["calibratedPosition"]["z"]
 				};
 			}
-			gtsam::Rot3 calibratedCameraRotation;
+			Rot3 calibratedCameraRotation;
 			if (cameraObject["calibratedRotation"] == nullptr) {
-				calibratedCameraRotation = gtsam::Rot3{ cameraRotation };
+				calibratedCameraRotation = Rot3{ cameraRotation };
 			}
 			else {
-				calibratedCameraRotation = gtsam::Rot3{
+				calibratedCameraRotation = Rot3{
 				cameraObject["calibratedRotation"]["q0"],
 				cameraObject["calibratedRotation"]["q1"],
 				cameraObject["calibratedRotation"]["q2"],
 				cameraObject["calibratedRotation"]["q3"]
 				};
 			}
-			gtsam::Pose3 calibratedCameraPose{ calibratedCameraRotation, calibratedCameraPosition };
+			Pose3 calibratedCameraPose{ calibratedCameraRotation, calibratedCameraPosition };
 			CameraConfig cameraConfig{
 				cameraObject["id"],
 				cameraPose,
@@ -140,8 +140,8 @@ namespace PSS {
 			mCurrentMeasurement.cameras = cameras;
 
 			// create all the other data types
-			mCurrentMeasurement.position = gtsam::Point3{ x, y, z };
-			mCurrentMeasurement.rotation = gtsam::Rot3{ q0, q1, q2, q3 };
+			mCurrentMeasurement.position = Point3{ x, y, z };
+			mCurrentMeasurement.rotation = Rot3{ q0, q1, q2, q3 };
 			mCurrentMeasurement.accel = Eigen::Vector3d{ ax, ay, az };
 			mCurrentMeasurement.angVel = Eigen::Vector3d{ wx, wy, wz };
 		}
@@ -150,7 +150,7 @@ namespace PSS {
 	}
 
 	// output
-	void SimulationContext::writeEstimate(const std::string& marker, const gtsam::Point3& estimate, const Measurement& measurement) {
+	void SimulationContext::writeEstimate(const std::string& marker, const Point3& estimate, const Measurement& measurement) {
 		std::stringstream outputLine;
 		outputLine << std::to_string(measurement.frame) << ',' << std::to_string(measurement.time) << ',' << marker << ','
 			<< std::to_string(measurement.position.x()) << ',' << std::to_string(measurement.position.y()) << ',' << std::to_string(measurement.position.z()) << ','

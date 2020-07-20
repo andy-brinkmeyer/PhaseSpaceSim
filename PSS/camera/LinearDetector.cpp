@@ -1,13 +1,12 @@
+#define _USE_MATH_DEFINES
+
 #include "LinearDetector.h"
+#include "../geometry/Pose3.h"
+
+#include <Eigen/Dense>
 
 #include <stdexcept>
 #include <cmath>
-
-#include <boost/none.hpp>
-#include <boost/optional.hpp>
-#include <Eigen/Core>
-#include <gtsam/geometry/Pose3.h>
-#include <gtsam/geometry/Point3.h>
 
 
 namespace PSS {
@@ -20,22 +19,22 @@ namespace PSS {
 			linearDetector.mSensorVariance,
 			linearDetector.mPose,
 			linearDetector.mCalibratedPose
-		) 
+		)
 	{ }
 
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose)
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose)
 		: LinearDetector::LinearDetector(fieldOfView, sensorWidth, sensorVariance, pose, pose)
 	{ }
 
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
 		: LinearDetector::LinearDetector(sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))), 0.5 * sensorWidth, sensorWidth, sensorVariance, pose, calibratedPose)
 	{ }
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose)
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose)
 		: LinearDetector::LinearDetector(focalLength, centerOffset, sensorWidth, sensorVariance, pose, pose)
 	{ }
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
 		: mFocalLength{ focalLength }
 		, mCenterOffset{ centerOffset }
 		, mSensorVariance{ sensorVariance }
@@ -56,14 +55,14 @@ namespace PSS {
 	double LinearDetector::sensorWidth() const { return mSensorWidth; }
 	double LinearDetector::sensorVariance() const { return mSensorVariance; }
 	double LinearDetector::centerOffset() const { return mCenterOffset; }
-	const gtsam::Pose3& LinearDetector::pose() const { return mPose; }
+	const Pose3& LinearDetector::pose() const { return mPose; }
 	const LinearDetector::ProjectionMatrix& LinearDetector::projectionMatrix() const { return mProjectionMatrix; }
 	const LinearDetector::ProjectionMatrix& LinearDetector::calibratedProjectionMatrix() const { return mCalibratedProjectionMatrix; }
 
 	// projection
-	double LinearDetector::projectPoint(const gtsam::Point3 &point, bool addNoise) {
-		Eigen::Matrix<double, 4, 1> pointH{ point.homogeneous() };
-		Eigen::Matrix<double, 2, 1> projectedH{ mProjectionMatrix * pointH };
+	double LinearDetector::projectPoint(const Point3 &point, bool addNoise) {
+		Eigen::Vector4d pointH{ point.homogeneous() };
+		Eigen::Vector2d projectedH{ mProjectionMatrix * pointH };
 		double projected;
 		if (addNoise) {
 			projected = projectedH.hnormalized()(0, 0) + mNormalDistribution(mRandomGenerator);
@@ -74,10 +73,10 @@ namespace PSS {
 		return projected;
 	}
 
-	double LinearDetector::safeProjectPoint(const gtsam::Point3 &point, bool addNoise) {
+	double LinearDetector::safeProjectPoint(const Point3 &point, bool addNoise) {
 		// transform the point to camera frame
-		gtsam::Point3 pointCamera{ mPose.transformTo(point) };
-		
+		Point3 pointCamera{ mPose.transformTo(point) };
+
 		// check if it is in front of the camera
 		if (pointCamera.z() < 0) {
 			throw std::domain_error("Point lies behind the linear detector.");
@@ -92,7 +91,7 @@ namespace PSS {
 		return projectedPoint;
 	}
 
-	LinearDetector::ProjectionMatrix LinearDetector::computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, gtsam::Pose3& pose) const {
+	LinearDetector::ProjectionMatrix LinearDetector::computeProjectionMatrix(double focalLength, double centerOffset, double sensorWidth, Pose3& pose) {
 		Eigen::Matrix<double, 2, 3> intrinsics;
 		intrinsics << focalLength, 0, centerOffset,
 			0, 0, 1;
@@ -109,7 +108,7 @@ namespace PSS {
 	}
 
 	// estimation
-	Eigen::Matrix<double, 1, 4> LinearDetector::getEstimationEquation(const gtsam::Point3& point, bool addSensorNoise) {
+	Eigen::Matrix<double, 1, 4> LinearDetector::getEstimationEquation(const Point3& point, bool addSensorNoise) {
 		double measurement{ safeProjectPoint(point, addSensorNoise) };
 		Eigen::Matrix<double, 1, 4> estimationEquation{ (measurement * mC2) - mC1 };
 		return estimationEquation;

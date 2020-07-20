@@ -2,9 +2,9 @@
 
 #include "../camera/Camera.h"
 #include "SimulationContext.h"
+#include "../geometry/Pose3.h"
 
 #include <Eigen/Dense>
-#include <gtsam/geometry/Point3.h>
 
 #include <unordered_map>
 #include <vector>
@@ -30,7 +30,7 @@ namespace PSS {
 	const CameraMap& Core::cameras() const { return mCameras; };
 
 	// estimation
-	gtsam::Point3 Core::estimateFromCameras(const gtsam::Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) {
+	Point3 Core::estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) {
 		Eigen::Matrix<double, Eigen::Dynamic, 4> estimationEquations;
 
 		for (const std::string& cameraID : cameras) {
@@ -67,7 +67,7 @@ namespace PSS {
 		}
 		else {
 			Eigen::Vector4d solution{ bdSvd.matrixV().col(3) };
-			gtsam::Point3 estimatedPoint{ solution.hnormalized() };
+			Point3 estimatedPoint{ solution.hnormalized() };
 			return estimatedPoint;
 		}
 	}
@@ -77,11 +77,11 @@ namespace PSS {
 		const Measurement& currentMeasurement{ simContext.currentMeasurement() };
 		simContext.nextMeasurement();
 		while (currentMeasurement.valid) {
-			gtsam::Point3 estimate;
+			Point3 estimate;
 			try {
-				estimate = gtsam::Point3{ estimateFromCameras(currentMeasurement.position, currentMeasurement.cameras, addSensorNoise) };
+				estimate = Point3{ estimateFromCameras(currentMeasurement.position, currentMeasurement.cameras, addSensorNoise) };
 			} catch (const UnderdeterminedSystem e) {
-				estimate = gtsam::Point3{ std::nan(""), std::nan(""), std::nan("") };
+				estimate = Point3{ std::nan(""), std::nan(""), std::nan("") };
 			}
 			simContext.writeEstimate(currentMeasurement.marker, estimate, currentMeasurement);
 			simContext.nextMeasurement();

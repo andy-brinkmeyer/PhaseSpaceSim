@@ -1,6 +1,8 @@
 #pragma once
 
 #include <core/SimulationContext.h>
+#include <geometry/Rot3.h>
+#include <geometry/Pose3.h>
 
 #include <gtest/gtest.h>
 
@@ -23,12 +25,12 @@ protected:
 	int numCameras;
 	int camera1Idx;
 	std::string camera1ID;
-	gtsam::Point3 camera1Pos;
-	gtsam::Rot3 camera1Rot;
+	PSS::Point3 camera1Pos;
+	PSS::Rot3 camera1Rot;
 	int camera2Idx;
 	std::string camera2ID;
-	gtsam::Point3 camera2Pos;
-	gtsam::Rot3 camera2Rot;
+	PSS::Point3 camera2Pos;
+	PSS::Rot3 camera2Rot;
 	std::vector<std::string> markers;
 	double samplingRate;
 	double fieldOfView;
@@ -44,10 +46,10 @@ protected:
 	std::string marker2;
 	std::vector<std::string> cameras1;
 	std::vector<std::string> cameras2;
-	gtsam::Point3 pos1;
-	gtsam::Point3 pos2;
-	gtsam::Rot3 rot1;
-	gtsam::Rot3 rot2;
+	PSS::Point3 pos1;
+	PSS::Point3 pos2;
+	PSS::Rot3 rot1;
+	PSS::Rot3 rot2;
 	Eigen::Vector3d accel1;
 	Eigen::Vector3d accel2;
 	Eigen::Vector3d angVel1;

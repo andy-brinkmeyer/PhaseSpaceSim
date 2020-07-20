@@ -1,13 +1,11 @@
 #define _USE_MATH_DEFINES
 
 #include "Camera.h"
-
 #include "LinearDetector.h"
+#include "../geometry/Pose3.h"
+#include "../geometry/Rot3.h"
 
 #include <Eigen/Core>
-#include <gtsam/geometry/Point3.h>
-#include <gtsam/geometry/Rot3.h>
-#include <gtsam/geometry/Pose3.h>
 
 #include <cmath>
 #include <exception>
@@ -15,19 +13,19 @@
 
 namespace PSS {
 	// constructors
-	Camera::Camera(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose)
+	Camera::Camera(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose)
 		: mHorizontalDetector{ fieldOfView, sensorWidth, sensorVariance, pose }
 		, mVerticalDetector{ fieldOfView, sensorWidth, sensorVariance, rotateToVertical(pose) } { }
 
-	Camera::Camera(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+	Camera::Camera(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
 		: mHorizontalDetector{ fieldOfView, sensorWidth, sensorVariance, pose, calibratedPose }
 		, mVerticalDetector{ fieldOfView, sensorWidth, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
 
-	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose)
+	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose)
 		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose }
 		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, rotateToVertical(pose) } { }
 
-	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose)
+	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
 		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose, calibratedPose }
 		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
 
@@ -36,7 +34,7 @@ namespace PSS {
 	const LinearDetector& Camera::verticalDetector() const { return mVerticalDetector; }
 
 	// estimation
-	Eigen::Matrix<double, Eigen::Dynamic, 4> Camera::getEstimationEquations(const gtsam::Point3& point, bool addSensorNoise) {
+	Eigen::Matrix<double, Eigen::Dynamic, 4> Camera::getEstimationEquations(const Point3& point, bool addSensorNoise) {
 		Eigen::Matrix<double, Eigen::Dynamic, 4> equations;
 
 		// get equation for horizontal detector
@@ -66,9 +64,11 @@ namespace PSS {
 	}
 
 	// helper functions
-	gtsam::Pose3 Camera::rotateToVertical(const gtsam::Pose3& pose) {
-		gtsam::Rot3 rot{ M_SQRT1_2, 0, 0, M_SQRT1_2 };
-		gtsam::Pose3 rotatedPose{ rot * pose.rotation(), pose.translation() };
+	Pose3 Camera::rotateToVertical(const Pose3& pose) {
+		Rot3 rot{ M_SQRT1_2, 0, 0, -M_SQRT1_2 };
+		RotationMatrix3 verticalRotMat{ pose.rotation().matrix() * rot.matrix() };
+		Rot3 verticalRot{ verticalRotMat };
+		Pose3 rotatedPose{ verticalRot, pose.translation() };
 		return rotatedPose;
 	}
 }
