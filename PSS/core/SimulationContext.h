@@ -1,11 +1,11 @@
 #pragma once
 
+#include "../geometry/Rot3.h"
+#include "../geometry/Pose3.h"
+
 #include <json/json.hpp>
 #include <csv/csv.h>
 #include <Eigen/Core>
-#include <gtsam/geometry/Point3.h>
-#include <gtsam/geometry/Rot3.h>
-#include <gtsam/geometry/Pose3.h>
 
 #include <string>
 #include <vector>
@@ -16,8 +16,8 @@ namespace PSS {
 	// structs that resemble the metadata
 	struct CameraConfig {
 		std::string id;
-		gtsam::Pose3 pose;
-		gtsam::Pose3 calibratedPose;
+		Pose3 pose;
+		Pose3 calibratedPose;
 		double fieldOfView;
 		double sensorWidth;
 		double sensorVariance;
@@ -36,8 +36,8 @@ namespace PSS {
 		double time; // time at current frame
 		std::string marker; // marker ID
 		std::vector<std::string> cameras; // vector of camera IDs from which the marker is visible
-		gtsam::Point3 position; // position of the marker
-		gtsam::Rot3 rotation; // rotation of the marker
+		Point3 position; // position of the marker
+		Rot3 rotation; // rotation of the marker
 		Eigen::Vector3d accel; // acceleration of the marker
 		Eigen::Vector3d angVel; // angular velocity of the marker
 	};
@@ -77,6 +77,6 @@ namespace PSS {
 		Measurement& nextMeasurement();
 
 		// output
-		void writeEstimate(const std::string& marker, const gtsam::Point3& estimate, const Measurement& measurement);
+		void writeEstimate(const std::string& marker, const Point3& estimate, const Measurement& measurement);
 	};
 }

@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 3.8)
 
+# find dependencies
+find_package(GTest REQUIRED)
+
 # add the test target
 add_executable(PSS_test 
 	"camera/LinearDetectorTest.cpp" 
@@ -8,13 +11,12 @@ add_executable(PSS_test
 	"core/SimulationContextTest.h" "core/SimulationContextTest.cpp")
 target_include_directories(PSS_test PUBLIC
 	${PSS_INCLUDE_DIR}
+	"${PSS_INCLUDE_DIR}/3rdparty"
 	${GTEST_INCLUDE_DIR}
 )
 target_link_libraries(PSS_test
 	GTest::GTest 
 	GTest::Main
-	gtsam
-	Boost::serialization
 	PSS_lib
 )
 

@@ -2,8 +2,7 @@
 
 #include "../camera/Camera.h"
 #include "SimulationContext.h"
-
-#include <gtsam/geometry/Point3.h>
+#include "../geometry/Pose3.h"
 
 #include <unordered_map>
 #include <vector>
@@ -26,7 +25,7 @@ namespace PSS {
 		const CameraMap& cameras() const;
 
 		// estimation
-		gtsam::Point3 estimateFromCameras(const gtsam::Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise = true);
+		Point3 estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise = true);
 		void simulateCameraOnly(SimulationContext& simContext, bool addSensorNoise = true);
 	};
 

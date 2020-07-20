@@ -1,10 +1,9 @@
 #pragma once
 
 #include "LinearDetector.h"
+#include "../geometry/Pose3.h"
 
 #include <Eigen/Core>
-#include <gtsam/geometry/Point3.h>
-#include <gtsam/geometry/Pose3.h>
 
 
 namespace PSS {
@@ -13,20 +12,20 @@ namespace PSS {
 		LinearDetector mVerticalDetector;
 
 		// helper functions
-		gtsam::Pose3 rotateToVertical(const gtsam::Pose3& pose);
+		Pose3 rotateToVertical(const Pose3& pose);
 
 	public:
 		// constructors
-		Camera(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose);
-		Camera(double fieldOfView, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
-		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose);
-		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const gtsam::Pose3& pose, const gtsam::Pose3& calibratedPose);
+		Camera(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose);
+		Camera(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
+		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose);
+		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
 
 		// getters
 		const LinearDetector& horizontalDetector() const;
 		const LinearDetector& verticalDetector() const;
 
 		// estimation
-		Eigen::Matrix<double, Eigen::Dynamic, 4> getEstimationEquations(const gtsam::Point3& point, bool addSensorNoise = true);
+		Eigen::Matrix<double, Eigen::Dynamic, 4> getEstimationEquations(const Point3& point, bool addSensorNoise = true);
 	};
 }
