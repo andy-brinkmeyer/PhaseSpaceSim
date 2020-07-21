@@ -1,6 +1,6 @@
-#include <camera/LinearDetector.h>
-#include <geometry/Rot3.h>
-#include <geometry/Pose3.h>
+#include <PSS/camera/LinearDetector.h>
+#include <PSS/geometry/Rot3.h>
+#include <PSS/geometry/Pose3.h>
 
 #include <math.h>
 #include <stdexcept>

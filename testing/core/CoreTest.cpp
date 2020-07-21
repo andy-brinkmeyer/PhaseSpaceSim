@@ -1,13 +1,14 @@
 #define _USE_MATH_DEFINES
 
 #include "SimulationContextTest.h"
-#include <core/Core.h>
-#include <core/SimulationContext.h>
-#include <camera/Camera.h>
-#include <camera/LinearDetector.h>
-#include <core/SimulationContext.h>
-#include <geometry/Rot3.h>
-#include <geometry/Pose3.h>
+
+#include <PSS/core/Core.h>
+#include <PSS/core/SimulationContext.h>
+#include <PSS/camera/Camera.h>
+#include <PSS/camera/LinearDetector.h>
+#include <PSS/core/SimulationContext.h>
+#include <PSS/geometry/Rot3.h>
+#include <PSS/geometry/Pose3.h>
 
 #include <gtest/gtest.h>
 

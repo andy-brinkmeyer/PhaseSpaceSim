@@ -1,8 +1,8 @@
 #include "SimulationContextTest.h"
 
-#include <core/SimulationContext.h>
-#include <geometry/Rot3.h>
-#include <geometry/Pose3.h>
+#include <PSS/core/SimulationContext.h>
+#include <PSS/geometry/Rot3.h>
+#include <PSS/geometry/Pose3.h>
 
 #include <gtest/gtest.h>
 #include <Eigen/Core>

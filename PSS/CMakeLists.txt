@@ -17,5 +17,4 @@ add_library(PSS_lib STATIC
 set_target_properties(PSS_lib PROPERTIES 
 	LINKER_LANGUAGE CXX
 	)
-target_include_directories(PSS_lib PUBLIC "${PSS_INCLUDE_DIR}/3rdparty")
-
+target_include_directories(PSS_lib PUBLIC ${CMAKE_SOURCE_DIR}/PSS/3rdparty)
