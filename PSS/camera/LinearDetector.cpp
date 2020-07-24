@@ -96,7 +96,7 @@ namespace PSS {
 		intrinsics << focalLength, 0, centerOffset,
 			0, 0, 1;
 
-		Eigen::Matrix<double, 3, 3> rotation = pose.rotation().matrix();
+		Eigen::Matrix<double, 3, 3> rotation = pose.rotation().matrix().transpose();
 
 		Eigen::Matrix<double, 3, 4> translation;
 		translation << 1, 0, 0, -pose.x(),

@@ -14,12 +14,15 @@ find_package(GTSAM REQUIRED)
 # define targets
 add_executable(PSS_estimation
 	"SimplePoseGraph.cpp")
+
 target_include_directories(PSS_estimation PUBLIC
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/PSS/3rdparty
 	${GTSAM_INCLUDE_DIR}
 	${GTSAM_INCLUDE_DIR}/gtsam/3rdparty
+	Boost::headers
 )
+
 target_link_libraries(PSS_estimation
 	PSS_lib
 	gtsam

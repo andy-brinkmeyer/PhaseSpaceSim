@@ -39,6 +39,7 @@ namespace PSS {
 		Point3 position; // position of the marker
 		Rot3 rotation; // rotation of the marker
 		Eigen::Vector3d accel; // acceleration of the marker
+		Eigen::Vector3d vel; // velocity of the marker
 		Eigen::Vector3d angVel; // angular velocity of the marker
 	};
 
@@ -56,7 +57,7 @@ namespace PSS {
 		MetaData mMetaData;
 
 		// measurements
-		io::CSVReader<17> mCsvReader;
+		io::CSVReader<20> mCsvReader;
 		Measurement mCurrentMeasurement;
 
 		// output

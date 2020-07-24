@@ -88,7 +88,7 @@ namespace PSS {
 
 		// prepare the csv reader
 		mCsvReader.read_header(io::ignore_no_column, 
-			"frame", "t", "markerID", "cameras", "x", "y", "z", "q0", "q1", "q2", "q3", "ax", "ay", "az", "wx", "wy", "wz");
+			"frame", "t", "markerID", "cameras", "x", "y", "z", "q0", "q1", "q2", "q3", "ax", "ay", "az", "wx", "wy", "wz", "vx", "vy", "vz");
 
 		// prepare the output
 		mOutputStream.open(mOutputPath);
@@ -113,6 +113,7 @@ namespace PSS {
 		double q0, q1, q2, q3;
 		double ax, ay, az;
 		double wx, wy, wz;
+		double vx, vy, vz;
 
 		// read the line
 		mCurrentMeasurement.valid = mCsvReader.read_row(
@@ -123,7 +124,8 @@ namespace PSS {
 			x, y, z,
 			q0, q1, q2, q3,
 			ax, ay, az,
-			wx, wy, wz
+			wx, wy, wz,
+			vx, vy, vz
 		);
 		if (mCurrentMeasurement.valid) {
 			// create the cameras vector
@@ -144,6 +146,7 @@ namespace PSS {
 			mCurrentMeasurement.rotation = Rot3{ q0, q1, q2, q3 };
 			mCurrentMeasurement.accel = Eigen::Vector3d{ ax, ay, az };
 			mCurrentMeasurement.angVel = Eigen::Vector3d{ wx, wy, wz };
+			mCurrentMeasurement.vel = Eigen::Vector3d{ vx, vy, vz };
 		}
 
 		return mCurrentMeasurement;

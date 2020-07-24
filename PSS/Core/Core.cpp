@@ -30,7 +30,7 @@ namespace PSS {
 	const CameraMap& Core::cameras() const { return mCameras; };
 
 	// estimation
-	Point3 Core::estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) {
+	Point3 Core::estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) const {
 		Eigen::Matrix<double, Eigen::Dynamic, 4> estimationEquations;
 
 		for (const std::string& cameraID : cameras) {
@@ -72,6 +72,10 @@ namespace PSS {
 		}
 	}
 
+	Point3 Core::estimateFromCameras(const Measurement& measurement, bool addSensorNoise) const {
+		return Core::estimateFromCameras(measurement.position, measurement.cameras, addSensorNoise);
+	}
+
 	void Core::simulateCameraOnly(SimulationContext& simContext, bool addSensorNoise) {
 		// read first measurement
 		const Measurement& currentMeasurement{ simContext.currentMeasurement() };
@@ -79,7 +83,7 @@ namespace PSS {
 		while (currentMeasurement.valid) {
 			Point3 estimate;
 			try {
-				estimate = Point3{ estimateFromCameras(currentMeasurement.position, currentMeasurement.cameras, addSensorNoise) };
+				estimate = Point3{ estimateFromCameras(currentMeasurement, addSensorNoise) };
 			} catch (const UnderdeterminedSystem e) {
 				estimate = Point3{ std::nan(""), std::nan(""), std::nan("") };
 			}

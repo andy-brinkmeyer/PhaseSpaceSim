@@ -70,6 +70,7 @@ TEST_F(SimulationContextTest, NextMeasurementTest) {
 	ASSERT_TRUE(measurement.rotation.matrix().isApprox(rot1.matrix()));
 	ASSERT_TRUE(measurement.accel.isApprox(accel1));
 	ASSERT_TRUE(measurement.angVel.isApprox(angVel1));
+	ASSERT_TRUE(measurement.vel.isApprox(vel1));
 
 	// second row
 	simContext.nextMeasurement();
@@ -83,6 +84,7 @@ TEST_F(SimulationContextTest, NextMeasurementTest) {
 	ASSERT_TRUE(measurement.rotation.matrix().isApprox(rot2.matrix()));
 	ASSERT_TRUE(measurement.accel.isApprox(accel2));
 	ASSERT_TRUE(measurement.angVel.isApprox(angVel2));
+	ASSERT_TRUE(measurement.vel.isApprox(vel2));
 
 	// check that end of file is correctly handled
 	simContext.nextMeasurement();

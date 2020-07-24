@@ -167,6 +167,8 @@ classdef PhaseSpaceSim < handle
             imu_type = 'accel-gyro';
             sample_rate = obj.metaData.samplingRate;
             obj.imu = imuSensor(imu_type, 'SampleRate', sample_rate);
+			obj.imu.Accelerometer = obj.accelParams;
+            obj.imu.Gyroscope = obj.gyroParams;
         end
         
         function [imuMeasurements] = generateImuMeasurements(obj)

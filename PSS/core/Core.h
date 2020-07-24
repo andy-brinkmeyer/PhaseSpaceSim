@@ -25,7 +25,9 @@ namespace PSS {
 		const CameraMap& cameras() const;
 
 		// estimation
-		Point3 estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise = true);
+		Point3 estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise = true) const;
+		Point3 estimateFromCameras(const Measurement& measurement, bool addSensorNoise = true) const;
+
 		void simulateCameraOnly(SimulationContext& simContext, bool addSensorNoise = true);
 	};
 

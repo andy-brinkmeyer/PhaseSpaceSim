@@ -54,6 +54,8 @@ protected:
 	Eigen::Vector3d accel2;
 	Eigen::Vector3d angVel1;
 	Eigen::Vector3d angVel2;
+	Eigen::Vector3d vel1;
+	Eigen::Vector3d vel2;
 
 public:
 	inline SimulationContextFixture()
@@ -64,9 +66,9 @@ public:
 			"[{\"id\":\"Camera_1\",\"fieldOfView\":120,\"sensorWidth\":0.1,\"sensorVariance\":1E-6,\"position\":{\"x\":0.0,\"y\":1.0,\"z\":2.0},\"rotation\":{\"q0\":1.0,\"q1\":0.0,\"q2\":0.0,\"q3\":0.0}},"
 			"{\"id\":\"Camera_2\",\"fieldOfView\":120,\"sensorWidth\":0.1,\"sensorVariance\":1E-6,\"position\":{\"x\":1.0,\"y\":0.0,\"z\":0.0},\"rotation\":{\"q0\":0.0,\"q1\":0.0,\"q2\":-1.0,\"q3\":0.0}}],"
 			"\"markers\":[\"Marker_1\",\"Marker_2\"],\"samplingRate\":1000}" }
-		, measurementsString{ "frame,t,markerID,cameras,x,y,z,q0,q1,q2,q3,ax,ay,az,wx,wy,wz\n"
-			"0,0,Marker_1,Camera_1;Camera_2,1.0,2.0,3.0,1.0,0.0,0.0,0.0,10.0,11.0,12.0,13.0,14.0,15.0\n"
-			"1,0.1,Marker_2,Camera_2,0.0,1.0,2.0,0.0,-1.0,0.0,0.0,9.0,10.0,11.0,12.0,13.0,14.0\n" }
+		, measurementsString{ "frame,t,markerID,cameras,x,y,z,q0,q1,q2,q3,ax,ay,az,wx,wy,wz,vx,vy,vz\n"
+			"0,0,Marker_1,Camera_1;Camera_2,1.0,2.0,3.0,1.0,0.0,0.0,0.0,10.0,11.0,12.0,13.0,14.0,15.0,21.0,22.0,23.0\n"
+			"1,0.1,Marker_2,Camera_2,0.0,1.0,2.0,0.0,-1.0,0.0,0.0,9.0,10.0,11.0,12.0,13.0,14.0,24.0,25.0,26.0\n" }
 		, numCameras{ 2 }
 		, camera1Idx{ 0 }, camera1ID{ "Camera_1" }, camera1Pos{ 0.0, 1.0, 2.0 }, camera1Rot{ 1.0, 0.0, 0.0, 0.0 }
 		, camera2Idx{ 1 }, camera2ID{ "Camera_2" }, camera2Pos{ 1.0, 0.0, 0.0 }, camera2Rot{ 0.0, 0.0, -1.0, 0.0 }
@@ -81,6 +83,7 @@ public:
 		, rot1{ 1.0, 0.0, 0.0, 0.0 }, rot2{ 0.0, -1.0, 0.0, 0.0 }
 		, accel1{ 10.0, 11.0, 12.0 }, accel2{ 9.0, 10.0, 11.0 }
 		, angVel1{ 13.0, 14.0, 15.0 }, angVel2{ 12.0, 13.0, 14.0 }
+		, vel1{ 21.0, 22.0, 23.0 }, vel2{ 24.0, 25.0, 26.0 }
 	{
 		// create dummy json
 		std::remove(metaDataPath.c_str()); // make sure that the file does not already exist
