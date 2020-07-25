@@ -10,11 +10,40 @@
 #include <gtsam/inference/Symbol.h>
 #include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/nonlinear/ISAM2.h>
+#include <gtsam/nonlinear/LevenbergMarquardtOptimizer.h>
+#include <gtsam/nonlinear/NonlinearFactor.h>
 
 #include <boost/shared_ptr.hpp>
 
 #include <iostream>
 #include <cmath>
+
+
+class VelFactor : public gtsam::NoiseModelFactor1<gtsam::Vector3> {
+	gtsam::Vector3 mVel;
+
+public:
+	VelFactor(gtsam::Key j, const gtsam::Vector3& vel, const gtsam::SharedNoiseModel& model) 
+		: gtsam::NoiseModelFactor1<gtsam::Vector3>(model, j), mVel(vel) { }
+
+	gtsam::Vector evaluateError(const gtsam::Vector3& vel, boost::optional<gtsam::Matrix&> H = boost::none) const {
+		if (H) (*H) = (gtsam::Matrix(3, 3) << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0).finished();
+		return vel - mVel;
+	}
+};
+
+class BiasFactor : public gtsam::NoiseModelFactor1<gtsam::imuBias::ConstantBias> {
+	gtsam::imuBias::ConstantBias mBias;
+
+public:
+	BiasFactor(gtsam::Key j, const gtsam::imuBias::ConstantBias& bias, const gtsam::SharedNoiseModel& model)
+		: gtsam::NoiseModelFactor1<gtsam::imuBias::ConstantBias>(model, j), mBias(bias) { }
+
+	gtsam::Vector evaluateError(const gtsam::imuBias::ConstantBias& bias, boost::optional<gtsam::Matrix&> H = boost::none) const {
+		if (H) (*H) = gtsam::Matrix66::Identity();
+		return bias.vector() - mBias.vector();
+	}
+};
 
 int main(int argc, char* argv[]) {
 	if (argc != 4) {
@@ -98,9 +127,8 @@ int main(int argc, char* argv[]) {
 	// loop through measurements
 	simContext.nextMeasurement();
 	while (currentMeasurement.valid) {
-		while (currentMeasurement.marker != "Marker_1") {
+		while (currentMeasurement.valid && currentMeasurement.marker != "Marker_1") {
 			simContext.nextMeasurement();
-			continue;
 		}
 		// advance variables
 		frame++;
@@ -128,16 +156,24 @@ int main(int argc, char* argv[]) {
 		graph->add(imuFactor);
 
 		// create bias factor
-		gtsam::BetweenFactor<gtsam::imuBias::ConstantBias> biasFactor{ B(prevFrame), B(frame), prevBias, biasNoise };
+		gtsam::BetweenFactor<gtsam::imuBias::ConstantBias> biasFactor{ B(prevFrame), B(frame), imuBias, biasNoise };
 		graph->add(biasFactor);
 
 		// create MoCap factor
 		gtsam::GPSFactor gpsFactor{ X(frame), moCapEstimate, moCapNoise };
+		graph->add(gpsFactor);
+
+		// create vel factor and bias factor
+		gtsam::Vector3 vel{ (moCapEstimate - prevState.pose().translation()) / dt };
+		VelFactor velFactor{ V(frame), vel, moCapNoise };
+		graph->add(velFactor);
+		BiasFactor unaryBiasFactor{ B(frame), imuBias, biasNoise };
+		graph->add(unaryBiasFactor);
 
 		// predict next state
 		gtsam::NavState predicted{ preintegrated->predict(prevState, prevBias) };
 
-		// add initial values
+		// insert initial values
 		initValues.insert(X(frame), predicted.pose());
 		initValues.insert(V(frame), predicted.v());
 		initValues.insert(B(frame), prevBias);
@@ -148,13 +184,15 @@ int main(int argc, char* argv[]) {
 			result = isam->calculateEstimate();
 		}
 		catch (gtsam::IndeterminantLinearSystemException e) {
-			std::cout << e.nearbyVariable() << std::endl;
-			std::cout << predicted.pose() << std::endl;
-			std::cout << predicted.v() << std::endl;
-			std::cout << prevBias << std::endl;
-			std::cout << "Acc: " << currentMeasurement.accel << std::endl;
-			std::cout << "Angvel: " << currentMeasurement.angVel << std::endl;
-			isam->print();
+			std::cout << e.nearbyVariable() << std::endl << "#############" << std::endl;
+			std::cout << predicted.pose() << std::endl << "#############" << std::endl;
+			std::cout << predicted.v() << std::endl << "#############" << std::endl;
+			std::cout << prevBias << std::endl << "#############" << std::endl;
+			std::cout << "Acc: " << currentMeasurement.accel << std::endl << "#############" << std::endl;
+			std::cout << "Angvel: " << currentMeasurement.angVel << std::endl << "#############" << std::endl;
+			std::cout << "#############" << std::endl << isam->marginalCovariance(X(prevFrame)) << std::endl << "#############" << std::endl;
+			std::cout << isam->marginalCovariance(V(prevFrame)) << std::endl << "#############" << std::endl;
+			std::cout << isam->marginalCovariance(B(prevFrame)) << std::endl << "#############" << std::endl;
 			break;
 		}
 
@@ -177,4 +215,5 @@ int main(int argc, char* argv[]) {
 		prevFrame = frame;
 		simContext.nextMeasurement();
 	}
+	return 1;
 }
