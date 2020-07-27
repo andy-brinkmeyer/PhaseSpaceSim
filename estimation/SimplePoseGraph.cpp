@@ -19,32 +19,6 @@
 #include <cmath>
 
 
-class VelFactor : public gtsam::NoiseModelFactor1<gtsam::Vector3> {
-	gtsam::Vector3 mVel;
-
-public:
-	VelFactor(gtsam::Key j, const gtsam::Vector3& vel, const gtsam::SharedNoiseModel& model) 
-		: gtsam::NoiseModelFactor1<gtsam::Vector3>(model, j), mVel(vel) { }
-
-	gtsam::Vector evaluateError(const gtsam::Vector3& vel, boost::optional<gtsam::Matrix&> H = boost::none) const {
-		if (H) (*H) = (gtsam::Matrix(3, 3) << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0).finished();
-		return vel - mVel;
-	}
-};
-
-class BiasFactor : public gtsam::NoiseModelFactor1<gtsam::imuBias::ConstantBias> {
-	gtsam::imuBias::ConstantBias mBias;
-
-public:
-	BiasFactor(gtsam::Key j, const gtsam::imuBias::ConstantBias& bias, const gtsam::SharedNoiseModel& model)
-		: gtsam::NoiseModelFactor1<gtsam::imuBias::ConstantBias>(model, j), mBias(bias) { }
-
-	gtsam::Vector evaluateError(const gtsam::imuBias::ConstantBias& bias, boost::optional<gtsam::Matrix&> H = boost::none) const {
-		if (H) (*H) = gtsam::Matrix66::Identity();
-		return bias.vector() - mBias.vector();
-	}
-};
-
 int main(int argc, char* argv[]) {
 	if (argc != 4) {
 		std::cout << "Invalid number of arguments. Metafile, measurements and output file need to be specified." << std::endl;
@@ -65,8 +39,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	// define IMU characteristics
-	double accelSigma{ 0.0346 };
-	double gyroSigma{ 0.0032 };
+	double accelSigma{ 0.346 };
+	double gyroSigma{ 0.032 };
 	gtsam::Matrix33 accelCovariance{ gtsam::I_3x3 * pow(accelSigma, 2) };
 	gtsam::Matrix33 gyroCovariance{ gtsam::I_3x3 * pow(gyroSigma, 2) };
 	gtsam::Matrix33 integrationCovariance{ gtsam::I_3x3 * 1e-8 };
@@ -163,13 +137,6 @@ int main(int argc, char* argv[]) {
 		gtsam::GPSFactor gpsFactor{ X(frame), moCapEstimate, moCapNoise };
 		graph->add(gpsFactor);
 
-		// create vel factor and bias factor
-		gtsam::Vector3 vel{ (moCapEstimate - prevState.pose().translation()) / dt };
-		VelFactor velFactor{ V(frame), vel, moCapNoise };
-		graph->add(velFactor);
-		BiasFactor unaryBiasFactor{ B(frame), imuBias, biasNoise };
-		graph->add(unaryBiasFactor);
-
 		// predict next state
 		gtsam::NavState predicted{ preintegrated->predict(prevState, prevBias) };
 
@@ -183,8 +150,8 @@ int main(int argc, char* argv[]) {
 			isam->update(*graph, initValues);
 			result = isam->calculateEstimate();
 		}
-		catch (gtsam::IndeterminantLinearSystemException e) {
-			std::cout << e.nearbyVariable() << std::endl << "#############" << std::endl;
+		catch (std::exception e) {
+			std::cout << e.what() << std::endl << "#############" << std::endl;
 			std::cout << predicted.pose() << std::endl << "#############" << std::endl;
 			std::cout << predicted.v() << std::endl << "#############" << std::endl;
 			std::cout << prevBias << std::endl << "#############" << std::endl;
