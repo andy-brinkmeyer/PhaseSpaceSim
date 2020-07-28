@@ -42,6 +42,12 @@ classdef PhaseSpaceSim < handle
         function setCameraMetaData(obj, fieldOfView, sensorWidth,...
                 sensorVariance, ...
                 calibratedPositionOffset, calibratedRotation)
+            % a NED system is used in the PSS library but Unity uses a Y-up
+            % system. We need to adjust the rotations to fit the NED
+            % system.
+            fromNED = quaternion(1/sqrt(2), -1/sqrt(2), 0, 0);
+            
+            % iterate through all cameras
             for i = 1:size(obj.metaData.cameras, 1)
                obj.metaData.cameras(i).fieldOfView = ...
                    fieldOfView;
@@ -49,6 +55,18 @@ classdef PhaseSpaceSim < handle
                    sensorWidth;
                obj.metaData.cameras(i).sensorVariance = ...
                    sensorVariance;
+               
+               % rotate camera to NED system
+               rot = quaternion(obj.metaData.cameras(i).rotation.q0, ...
+                   obj.metaData.cameras(i).rotation.q1, ...
+                   obj.metaData.cameras(i).rotation.q2, ...
+                   obj.metaData.cameras(i).rotation.q3);
+               newRot = fromNED*rot;
+               [q0, q1, q2, q3] = parts(newRot);
+               obj.metaData.cameras(i).rotation.q0 = q0;
+               obj.metaData.cameras(i).rotation.q1 = q1;
+               obj.metaData.cameras(i).rotation.q2 = q2;
+               obj.metaData.cameras(i).rotation.q3 = q3;
                
                % set calibrated camera pose
                if nargin > 4 
@@ -73,6 +91,7 @@ classdef PhaseSpaceSim < handle
                        calibratedRotationOffset(i,4);
                end
             end
+            % write to file
             metaFile = strcat(obj.outputDir, '/meta.json');
             jsonData = jsonencode(obj.metaData);
             outFile = fopen(metaFile, 'w');
@@ -81,6 +100,10 @@ classdef PhaseSpaceSim < handle
         end
         
         function computeKinematics(obj, smoothingParams)
+            % rotation that is used to rotate the mesurements to NED system
+            toNED = quaternion(1/sqrt(2), 1/sqrt(2), 0, 0);
+            
+            % iterate through markers
             for j = 1:length(obj.metaData.markers)
                 marker = obj.metaData.markers{j};
                 markerData = obj.inputTable(...
@@ -89,11 +112,12 @@ classdef PhaseSpaceSim < handle
                 % assign the input values to object
                 obj.markerKinematics.(marker).t = markerData{:, 't'};
                 obj.markerKinematics.(marker).truePos = ...
-                    markerData{:, {'x_true', 'y_true', 'z_true'}};
+                    rotateframe(toNED, ...
+                        markerData{:, {'x_true', 'y_true', 'z_true'}});
+                rotation = markerData{:, {'q0', 'q1', 'q3', 'q2'}};
+                rotation(:,4) = -rotation(:,4);
                 obj.markerKinematics.(marker).trueRot = ...
-                    conj(...
-                        quaternion(markerData{:, ...
-                            {'q0', 'q1', 'q2', 'q3'}}));
+                        quaternion(rotation);
                 obj.markerKinematics.(marker).frames = ...
                     markerData{:, {'frame'}};
                 obj.markerKinematics.(marker).cameras = ...
@@ -141,7 +165,37 @@ classdef PhaseSpaceSim < handle
             end
         end
         
+        function rmse = smoothSingleTrajectory(obj, marker, direction, smoothingParam)
+            % check if kinematics have already been read for this marker
+            if not(isfield(obj, strcat('markerKinematics.', marker, 'truePos')))
+                toNED = quaternion(1/sqrt(2), 1/sqrt(2), 0, 0);
+                markerData = obj.inputTable(...
+                    strcmp(obj.inputTable.marker_id, marker), :);
+               obj.markerKinematics.(marker).t = markerData{:, 't'};
+               obj.markerKinematics.(marker).truePos = ...
+                    rotateframe(toNED, ...
+                        markerData{:, {'x_true', 'y_true', 'z_true'}});
+            end
+            
+            obj.markerKinematics.(marker).posSpline{direction} = ...
+                        fit(obj.markerKinematics.(marker).t, ...
+                        obj.markerKinematics.(marker).truePos(:, direction), ...
+                        'smoothingspline', ... 
+                        'SmoothingParam', smoothingParam);
+            [obj.markerKinematics.(marker).smoothedVel(:, direction), ...
+                        obj.markerKinematics.(marker).smoothedAcc(:, direction)] = ...
+                        differentiate(...
+                            obj.markerKinematics.(marker).posSpline{direction}, ...
+                            obj.markerKinematics.(marker).t);
+            rmse = obj.RMSE(...
+                        obj.markerKinematics.(marker).posSpline{direction}(...
+                            obj.markerKinematics.(marker).t), ...
+                        obj.markerKinematics.(marker).truePos(:, direction));
+            obj.markerKinematics.(marker).smoothingError(direction) = rmse;
+        end
+        
         function createImu(obj, accelParams, gyroParams)
+            % standard parameters if no custom ones are provided
             if nargin == 1
                 g = 9.807;
                 accel_range = 16*g;
@@ -164,32 +218,38 @@ classdef PhaseSpaceSim < handle
                obj.accelParams = accelParams;
                obj.gyroParams = gyroParams;
             end
+            
+            % create the IMU
             imu_type = 'accel-gyro';
             sample_rate = obj.metaData.samplingRate;
             obj.imu = imuSensor(imu_type, 'SampleRate', sample_rate);
-			obj.imu.Accelerometer = obj.accelParams;
+            obj.imu.Accelerometer = obj.accelParams;
             obj.imu.Gyroscope = obj.gyroParams;
         end
         
-        function [imuMeasurements] = generateImuMeasurements(obj)
+        function [imuMeasurements] = generateImuMeasurements(obj, useSmoothed)
             imuMeasurements = struct;
             tableColumns = {'frame', 't', 'markerID', 'cameras', ...
                 'x', 'y', 'z', 'q0', 'q1', 'q2', 'q3', ...
-                'ax', 'ay', 'az', 'wx', 'wy', 'wz'};
-            outputTable = cell2table(cell(0,17), 'VariableNames', tableColumns);
+                'ax', 'ay', 'az', 'wx', 'wy', 'wz', 'vx', 'vy', 'vz'};
+            outputTable = cell2table(cell(0,20), 'VariableNames', tableColumns);
             for i = 1:length(obj.metaData.markers)
                 marker = obj.metaData.markers{i};
                 rot = obj.markerKinematics.(marker).trueRot;
-                accBody = rotateframe(rot, ...
-                    obj.markerKinematics.(marker).trueAcc);
-                angVelBody = rotateframe(rot, ...
-                    obj.markerKinematics.(marker).trueAngvel);
-                [accReadings, gyroReadings] = obj.imu(accBody, ...
-                    angVelBody, rot);
+                
+                if useSmoothed
+                    [accReadings, gyroReadings] = obj.imu(obj.markerKinematics.(marker).smoothedAcc, ...
+                    obj.markerKinematics.(marker).trueAngvel, rot);
+                else
+                    [accReadings, gyroReadings] = obj.imu(obj.markerKinematics.(marker).trueAcc, ...
+                    obj.markerKinematics.(marker).trueAngvel, rot);
+                end
                 imuMeasurements.(marker).t = ...
                     obj.markerKinematics.(marker).t;
                 imuMeasurements.(marker).accReadings = accReadings;
                 imuMeasurements.(marker).gyroReadings = gyroReadings;
+                obj.markerKinematics.(marker).accReadings = accReadings;
+                obj.markerKinematics.(marker).gyroReadings = gyroReadings;
                 
                 % generate output table
                 [q0, q1, q2, q3] = parts(obj.markerKinematics.(marker).trueRot);
@@ -207,7 +267,10 @@ classdef PhaseSpaceSim < handle
                     accReadings(:,3), ...
                     gyroReadings(:,1), ...
                     gyroReadings(:,2), ...
-                    gyroReadings(:,3));
+                    gyroReadings(:,3), ...
+                    obj.markerKinematics.(marker).smoothedVel(:,1), ...
+                    obj.markerKinematics.(marker).smoothedVel(:,2), ...
+                    obj.markerKinematics.(marker).smoothedVel(:,3));
                 markerTable.Properties.VariableNames = tableColumns;
                 outputTable = [outputTable; markerTable];
             end
