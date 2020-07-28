@@ -3,6 +3,11 @@ out
 CMakeSettings.json
 .vs
 
+# matlab ignores
+/matlab/input/*
+/matlab/output/*
+/matlab/visualize_pss_output.m
+
 # unity specific ignores
 /unity/[Ll]ibrary/
 /unity/[Tt]emp/

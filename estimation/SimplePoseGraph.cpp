@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 	using gtsam::symbol_shorthand::B; // imu bias
 
 	// define noise
-	gtsam::noiseModel::Isotropic::shared_ptr moCapNoise{ gtsam::noiseModel::Isotropic::Sigma(3, 0.001) };
+	gtsam::noiseModel::Isotropic::shared_ptr moCapNoise{ gtsam::noiseModel::Isotropic::Sigma(3, 0.01) };
 	gtsam::Vector6 poseNoiseVec;
 	poseNoiseVec << 0.001, 0.001, 0.001, 0.01, 0.01, 0.01;
 	gtsam::noiseModel::Diagonal::shared_ptr poseNoise{ gtsam::noiseModel::Diagonal::Sigmas(poseNoiseVec) };
@@ -114,14 +114,14 @@ int main(int argc, char* argv[]) {
 
 		// estimate point from camera
 		gtsam::Point3 moCapEstimate;
+		bool haveCameraEstimate;
 		try {
 			moCapEstimate = core.estimateFromCameras(currentMeasurement);
+			haveCameraEstimate = true;
 		}
 		catch (PSS::UnderdeterminedSystem e) {
-			prevTime = currentMeasurement.time;
-			simContext.nextMeasurement();
 			std::cout << "Underdetermined Camera System" << std::endl;
-			continue;
+			haveCameraEstimate = false;
 		}
 
 		// create IMU factor
@@ -134,8 +134,11 @@ int main(int argc, char* argv[]) {
 		graph->add(biasFactor);
 
 		// create MoCap factor
-		gtsam::GPSFactor gpsFactor{ X(frame), moCapEstimate, moCapNoise };
-		graph->add(gpsFactor);
+		gtsam::GPSFactor gpsFactor;
+		if (haveCameraEstimate) {
+			gpsFactor = gtsam::GPSFactor{ X(frame), moCapEstimate, moCapNoise };
+			graph->add(gpsFactor);
+		}
 
 		// predict next state
 		gtsam::NavState predicted{ preintegrated->predict(prevState, prevBias) };
