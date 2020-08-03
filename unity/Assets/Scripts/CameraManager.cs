@@ -38,8 +38,6 @@ public class CameraManager : MonoBehaviour
                 // get position of marker for each camera
                 foreach (GameObject camera in cameras)
                 {
-                    Camera cameraComponent = camera.GetComponent<Camera>();
-
                     // raycasting to determine if the object is visible
                     Vector3 rayDirection = marker.transform.position - camera.transform.position;
                     RaycastHit hit;
