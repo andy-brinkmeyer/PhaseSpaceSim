@@ -56,6 +56,7 @@ namespace PSS {
 	double LinearDetector::sensorVariance() const { return mSensorVariance; }
 	double LinearDetector::centerOffset() const { return mCenterOffset; }
 	const Pose3& LinearDetector::pose() const { return mPose; }
+	const Pose3& LinearDetector::calibratedPose() const { return mCalibratedPose; }
 	const LinearDetector::ProjectionMatrix& LinearDetector::projectionMatrix() const { return mProjectionMatrix; }
 	const LinearDetector::ProjectionMatrix& LinearDetector::calibratedProjectionMatrix() const { return mCalibratedProjectionMatrix; }
 
