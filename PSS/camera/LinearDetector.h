@@ -72,13 +72,16 @@ namespace PSS {
 		/**
 		 * \brief Convenience constructor from FoV.
 		 * 
-		 * It is assumed that the camera is perfectly calibrated.
+		 * It is assumed that the camera is perfectly calibrated. 
+		 * 
+		 * The sensors center is assumed to be in its middle.
 		 *
 		 * \param fieldOfView The field of view of the linear detector in degrees.
 		 * \param sensorWidth Width of the sensor in metres.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0, 
 		 *			though adding noise can be disabled when projecting a point.
-		 * \param pose True pose of the linear detector with respect to the local frame.
+		 * \param pose True pose of the linear detector with respect to the local frame. 
+		 *			The detector faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		*/
 		LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose);
 
@@ -87,12 +90,15 @@ namespace PSS {
 		 *
 		 * Use this constructor when the calibrated camera pose differs from the true one. The projection will be performed using the true
 		 * camera pose while for estimation the calibrated LinearDetector::ProjectionMatrix is used.
+		 * 
+		 * The sensors center is assumed to be in its middle.
 		 *
 		 * \param fieldOfView The field of view of the linear detector in degrees.
 		 * \param sensorWidth Width of the sensor in metres.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
+		 *			The detector faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		 * \param calibratedPose Calibrated pose of the linear detector with respect to the local frame.
 		*/
 		LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
@@ -108,6 +114,7 @@ namespace PSS {
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
+		 *			The detector faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		*/
 		LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose);
 
@@ -123,19 +130,20 @@ namespace PSS {
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
+		 *			The detector faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		 * \param calibratedPose Calibrated pose of the linear detector with respect to the local frame.
 		*/
 		LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
 
 		// getters
-		double focalLength() const; /**< Returns the focal length. */
-		double sensorWidth() const; /**< Returns the sensor width. */
-		double sensorVariance() const; /**< Returns the sensor variance. */
-		double centerOffset() const; /**< Returns the center offset. */
-		const Pose3& pose() const; /**< Returns the true pose. */
-		const Pose3& calibratedPose() const; /**< Returns the calibrated pose. */
-		const ProjectionMatrix& projectionMatrix() const; /**< Returns the true projection matrix. */
-		const ProjectionMatrix& calibratedProjectionMatrix() const; /**< Returns the calibrated projection matrix. */
+		double focalLength() const; /**< \brief Returns the focal length. */
+		double sensorWidth() const; /**< \brief Returns the sensor width. */
+		double sensorVariance() const; /**< \brief Returns the sensor variance. */
+		double centerOffset() const; /**< \brief Returns the center offset. */
+		const Pose3& pose() const; /**< \brief Returns the true pose. */
+		const Pose3& calibratedPose() const; /**< \brief Returns the calibrated pose. */
+		const ProjectionMatrix& projectionMatrix() const; /**< \brief Returns the true projection matrix. */
+		const ProjectionMatrix& calibratedProjectionMatrix() const; /**< \brief Returns the calibrated projection matrix. */
 
 		// projection
 		/**
@@ -161,10 +169,12 @@ namespace PSS {
 
 		// estimation
 		/**
-		 * \brief Return the estimation equation corresponding to this linear detector.
+		 * \brief Returns the estimation equation corresponding to this linear detector.
 		 *
 		 * The estimation of a point from linear detector measurements is based on minimising the algebraic 
 		 * backprojection error, i.e. the least square solution to the intersecting planes. 
+		 *
+		 * If the point lies outside the field of view of the linear detector an OutsideOfFieldOfView exception is thrown.
 		 *
 		 * The estimation equation is of the form:
 		 * \f$ \left( \mathbf{p}_{1} - u \, \mathbf{p}_{2} \right) \cdot \mathbf{\hat{x}} = 0 \f$, where \f$ \mathbf{p}_{i} \f$ is the i-th row
