@@ -64,6 +64,8 @@ namespace PSS {
 		// constructor
 		/**
 		 * \brief Default consructor.
+		 *
+		 * \param linearDetector LinearDetector instance.
 		*/
 		LinearDetector(const LinearDetector& linearDetector);
 
@@ -102,6 +104,7 @@ namespace PSS {
 		 *
 		 * \param focalLength The focal length of the linear detector in metres.
 		 * \param centerOffset Offset of the sensor center in metres. Read about Camera Pinhole Model for more details about the offset.
+		 * \param sensorWidth Width of the sensor in metres.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
@@ -116,6 +119,7 @@ namespace PSS {
 		 *
 		 * \param focalLength The focal length of the linear detector in metres.
 		 * \param centerOffset Offset of the sensor center in metres. Read about Camera Pinhole Model for more details about the offset.
+		 * \param sensorWidth Width of the sensor in metres.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
@@ -148,22 +152,48 @@ namespace PSS {
 		/**
 		 * \brief Check if the point is visible by the linear detector and project it onto the sensor.
 		 *
+		 * If the point lies outside the field of view of the linear detector an OutsideOfFieldOfView exception is thrown.
+		 *
 		 * \param point The point in the local frame to project.
 		 * \param addNoise Add zero-mean Gaussian noise to the true measurement.
 		*/
 		double safeProjectPoint(const Point3& point, bool addNoise = true);
 
 		// estimation
+		/**
+		 * \brief Return the estimation equation corresponding to this linear detector.
+		 *
+		 * The estimation of a point from linear detector measurements is based on minimising the algebraic 
+		 * backprojection error, i.e. the least square solution to the intersecting planes. 
+		 *
+		 * The estimation equation is of the form:
+		 * \f$ \left( \mathbf{p}_{1} - u \, \mathbf{p}_{2} \right) \cdot \mathbf{\hat{x}} = 0 \f$, where \f$ \mathbf{p}_{i} \f$ is the i-th row
+		 * of the projection matrix, \f$ u \f$ is the sensor measurement and \f$ \mathbf{\hat{x}} \f$ is the homogeneous position of the point.
+		 *
+		 * \param point True position of the point.
+		 * \param addSensorNoise Add zero-mean Gaussian noise on the true sensor measurement.
+		*/
 		Eigen::Matrix<double, 1, 4> getEstimationEquation(const Point3& point, bool addSensorNoise = true);
 	};
 
 	// custom exception
+	/**
+	 * \brief Custom exception that is thrown when a point is outside the field of view of the linear detector.
+	*/
 	class OutsideOfFieldOfView : public std::exception {
 		std::string mMsg;
 
 	public:
+		/**
+		 * \brief Constructor from message.
+		 *
+		 * \param msg Error message.
+		*/
 		OutsideOfFieldOfView(const std::string& msg);
 
+		/**
+		 * \brief Returns explanatory string.
+		*/
 		virtual const char* what() const throw ();
 	};
 }
