@@ -50,7 +50,7 @@ namespace PSS {
 				for (std::ptrdiff_t i{ 0 }; i < newEquations; i++) {
 					estimationEquations.row(oldEquations + i) = equations.row(i);
 				}
-			} catch (const std::domain_error& e) {
+			} catch (const OutsideOfFieldOfView&) {
 				continue;
 			}
 		}

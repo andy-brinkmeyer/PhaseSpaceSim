@@ -80,13 +80,13 @@ namespace PSS {
 
 		// check if it is in front of the camera
 		if (pointCamera.z() < 0) {
-			throw std::domain_error("Point lies behind the linear detector.");
+			throw OutsideOfFieldOfView("Point lies behind the linear detector.");
 		}
 
 		// check if the point is projected on the sensor
 		double projectedPoint{ projectPoint(point, addNoise) };
 		if (projectedPoint < 0 || projectedPoint > mSensorWidth) {
-			throw std::domain_error("Point lies outside of sensor range.");
+			throw OutsideOfFieldOfView("Point lies outside of sensor range.");
 		}
 
 		return projectedPoint;
@@ -113,5 +113,12 @@ namespace PSS {
 		double measurement{ safeProjectPoint(point, addSensorNoise) };
 		Eigen::Matrix<double, 1, 4> estimationEquation{ (measurement * mC2) - mC1 };
 		return estimationEquation;
+	}
+
+	// custom exception implementation
+	OutsideOfFieldOfView::OutsideOfFieldOfView(const std::string& msg) : mMsg{ msg } { }
+
+	const char* OutsideOfFieldOfView::what() const throw () {
+		return mMsg.c_str();
 	}
 }

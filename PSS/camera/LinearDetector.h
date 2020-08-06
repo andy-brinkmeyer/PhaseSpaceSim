@@ -5,6 +5,7 @@
 #include <Eigen/Core>
 
 #include <random>
+#include <exception>
 
 
 namespace PSS {
@@ -154,5 +155,15 @@ namespace PSS {
 
 		// estimation
 		Eigen::Matrix<double, 1, 4> getEstimationEquation(const Point3& point, bool addSensorNoise = true);
+	};
+
+	// custom exception
+	class OutsideOfFieldOfView : public std::exception {
+		std::string mMsg;
+
+	public:
+		OutsideOfFieldOfView(const std::string& msg);
+
+		virtual const char* what() const throw ();
 	};
 }
