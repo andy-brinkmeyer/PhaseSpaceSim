@@ -10,9 +10,9 @@
 
 namespace PSS {
 	/**
-	 * \brief Class representing a Linear Detector based on the pinhole camera model.
+	 * \brief Class representing a Linear Detector based on the pinhole %camera model.
 	 *
-	 * A linear detector is treated as a pinhole camera where the sensor is reduced to only one dimension. 
+	 * A linear detector is treated as a pinhole %camera where the sensor is reduced to only one dimension. 
 	 * This is done by removing the row of the projection matrix that would correspond to the second sensor dimension. 
 	 * The resulting LinearDetector::ProjectionMatrix is of dimension 2x4.
 	*/
@@ -63,7 +63,7 @@ namespace PSS {
 	public:
 		// constructor
 		/**
-		 * \brief Default consructor.
+		 * \brief Consructor from LinearDetector isntance.
 		 *
 		 * \param linearDetector LinearDetector instance.
 		*/
@@ -81,7 +81,7 @@ namespace PSS {
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0, 
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame. 
-		 *			The detector faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
+		 *			The detector faces in the z-direction, as common in the pinhole %camera model. The x-direction is the sensor direction.
 		*/
 		LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose);
 
@@ -98,7 +98,7 @@ namespace PSS {
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
-		 *			The detector faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
+		 *			The detector faces in the z-direction, as common in the pinhole %camera model. The x-direction is the sensor direction.
 		 * \param calibratedPose Calibrated pose of the linear detector with respect to the local frame.
 		*/
 		LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
@@ -109,12 +109,12 @@ namespace PSS {
 		 * It is assumed that the camera is perfectly calibrated.
 		 *
 		 * \param focalLength The focal length of the linear detector in metres.
-		 * \param centerOffset Offset of the sensor center in metres. Read about Camera Pinhole Model for more details about the offset.
+		 * \param centerOffset Offset of the sensor center in metres. Read about %Camera Pinhole Model for more details about the offset.
 		 * \param sensorWidth Width of the sensor in metres.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
-		 *			The detector faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
+		 *			The detector faces in the z-direction, as common in the pinhole %camera model. The x-direction is the sensor direction.
 		*/
 		LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose);
 
@@ -125,12 +125,12 @@ namespace PSS {
 		 * camera pose while for estimation the calibrated LinearDetector::ProjectionMatrix is used.
 		 *
 		 * \param focalLength The focal length of the linear detector in metres.
-		 * \param centerOffset Offset of the sensor center in metres. Read about Camera Pinhole Model for more details about the offset.
+		 * \param centerOffset Offset of the sensor center in metres. Read about %Camera Pinhole Model for more details about the offset.
 		 * \param sensorWidth Width of the sensor in metres.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
-		 *			The detector faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
+		 *			The detector faces in the z-direction, as common in the pinhole %camera model. The x-direction is the sensor direction.
 		 * \param calibratedPose Calibrated pose of the linear detector with respect to the local frame.
 		*/
 		LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
@@ -180,7 +180,7 @@ namespace PSS {
 		 * \f$ \left( \mathbf{p}_{1} - u \, \mathbf{p}_{2} \right) \cdot \mathbf{\hat{x}} = 0 \f$, where \f$ \mathbf{p}_{i} \f$ is the i-th row
 		 * of the projection matrix, \f$ u \f$ is the sensor measurement and \f$ \mathbf{\hat{x}} \f$ is the homogeneous position of the point.
 		 *
-		 * \param point True position of the point.
+		 * \param point True position of the point to estimate.
 		 * \param addSensorNoise Add zero-mean Gaussian noise on the true sensor measurement.
 		*/
 		Eigen::Matrix<double, 1, 4> getEstimationEquation(const Point3& point, bool addSensorNoise = true);

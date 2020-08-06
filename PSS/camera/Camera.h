@@ -57,7 +57,7 @@ namespace PSS {
 		 * It is assumed that both linear detectors have the same intrinsic properties, i.e. the same focal length, sensor width, center offset and sensor variance.
 		 *
 		 * \param focalLength The focal length of the linear detectors in metres.
-		 * \param centerOffset Offset of the sensors center in metres. Read about Camera Pinhole Model for more details about the offset.
+		 * \param centerOffset Offset of the sensors center in metres. Read about %Camera Pinhole Model for more details about the offset.
 		 * \param sensorWidth Width of the sensors in metres.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
@@ -71,7 +71,7 @@ namespace PSS {
 		 * It is assumed that both linear detectors have the same intrinsic properties, i.e. the same focal length, sensor width, center offset and sensor variance.
 		 *
 		 * \param focalLength The focal length of the linear detectors in metres.
-		 * \param centerOffset Offset of the sensors center in metres. Read about Camera Pinhole Model for more details about the offset.
+		 * \param centerOffset Offset of the sensors center in metres. Read about %Camera Pinhole Model for more details about the offset.
 		 * \param sensorWidth Width of the sensors in metres.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
