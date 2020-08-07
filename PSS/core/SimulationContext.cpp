@@ -106,7 +106,7 @@ namespace PSS {
 	const Measurement& SimulationContext::currentMeasurement() { return mCurrentMeasurement; }
 
 	// read measurements
-	Measurement& SimulationContext::nextMeasurement() {
+	const Measurement& SimulationContext::nextMeasurement() {
 		// define temp variables to hold values for row parsing
 		std::string camerasString;
 		double x, y, z;
