@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <iostream>
 
 
 // create fixture
@@ -57,22 +58,23 @@ TEST(CoreTest, EstimationTest) {
 	// create cameras
 	double fieldOfView{ 120 };
 	double sensorWidth{ 0.1 };
+	int resolution{ -1 };
 	double sensorVariance{ 0.001 };
 
 	PSS::Point3 position1{ 0.0, 0.0, 0.0 };
 	PSS::Rot3 rotation1{ 1.0, 0.0, 0.0, 0.0 };
 	PSS::Pose3 pose1{ rotation1, position1 };
-	PSS::Camera* camera1 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose1 };
+	PSS::Camera* camera1 = new PSS::Camera{ fieldOfView, sensorWidth, resolution, sensorVariance, pose1 };
 
 	PSS::Point3 position2{ -5.0, 1.0, 0.0 };
 	PSS::Rot3 rotation2{ 1, 0, 0, 0 };
 	PSS::Pose3 pose2{ rotation2, position2 };
-	PSS::Camera* camera2 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose2 };
+	PSS::Camera* camera2 = new PSS::Camera{ fieldOfView, sensorWidth, resolution, sensorVariance, pose2 };
 
 	PSS::Point3 position3{ 0.0, 0.0, 10.0 };
 	PSS::Rot3 rotation3{ 0, 0, 1, 0 };
 	PSS::Pose3 pose3{ rotation3, position3 };
-	PSS::Camera* camera3 = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose3 };
+	PSS::Camera* camera3 = new PSS::Camera{ fieldOfView, sensorWidth, resolution, sensorVariance, pose3 };
 	
 	// create core
 	PSS::CameraMap* cameraMap = new PSS::CameraMap{ };
@@ -98,12 +100,3 @@ TEST(CoreTest, EstimationTest) {
 	cameraList.pop_back();
 	ASSERT_THROW(core.estimateFromCameras(knownPoint, cameraList), PSS::UnderdeterminedSystem);
 }
-
-/*
-// This one is just for quick testing, will be removed once the proper tests are written.
-TEST(CoreTest, SimulateCameraOnlyTest) {
-	PSS::SimulationContext simContext{ "meta.json", "measurements.csv", "out.csv" };
-	PSS::Core core{ simContext };
-	core.simulateCameraOnly(simContext);
-}
-*/

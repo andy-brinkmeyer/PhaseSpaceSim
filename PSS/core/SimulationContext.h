@@ -22,6 +22,7 @@ namespace PSS {
 		Pose3 calibratedPose; /**< \brief Calibrated pose of the camera. */
 		double fieldOfView; /**< \brief Field of view of the camera. */
 		double sensorWidth; /**< \brief Width of the cameras sensors. */
+		int resolution; /**< \brief Pixel resolution cameras sensors. */
 		double sensorVariance; /**< \brief Variance of the zero-mean Gaussian sensor noise. */
 	};
 

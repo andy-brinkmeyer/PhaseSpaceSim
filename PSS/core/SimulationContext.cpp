@@ -72,6 +72,7 @@ namespace PSS {
 				calibratedCameraPose,
 				cameraObject["fieldOfView"],
 				cameraObject["sensorWidth"],
+				cameraObject["resolution"],
 				cameraObject["sensorVariance"]
 			};
 			cameras.push_back(cameraConfig);

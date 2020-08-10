@@ -16,29 +16,32 @@ namespace PSS {
 			linearDetector.mFocalLength,
 			linearDetector.mCenterOffset,
 			linearDetector.mSensorWidth,
+			linearDetector.mResolution,
 			linearDetector.mSensorVariance,
 			linearDetector.mPose,
 			linearDetector.mCalibratedPose
 		)
 	{ }
 
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose)
-		: LinearDetector::LinearDetector(fieldOfView, sensorWidth, sensorVariance, pose, pose)
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose)
+		: LinearDetector::LinearDetector(fieldOfView, sensorWidth, resolution, sensorVariance, pose, pose)
 	{ }
 
-	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
-		: LinearDetector::LinearDetector(sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))), 0.5 * sensorWidth, sensorWidth, sensorVariance, pose, calibratedPose)
+	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
+		: LinearDetector::LinearDetector(sensorWidth / (2 * std::tan(0.5 * (fieldOfView * M_PI / 180))), 0.5 * sensorWidth, sensorWidth, resolution, sensorVariance, pose, calibratedPose)
 	{ }
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose)
-		: LinearDetector::LinearDetector(focalLength, centerOffset, sensorWidth, sensorVariance, pose, pose)
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose)
+		: LinearDetector::LinearDetector(focalLength, centerOffset, sensorWidth, resolution, sensorVariance, pose, pose)
 	{ }
 
-	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
+	LinearDetector::LinearDetector(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
 		: mFocalLength{ focalLength }
 		, mCenterOffset{ centerOffset }
 		, mSensorVariance{ sensorVariance }
 		, mSensorWidth{ sensorWidth }
+		, mResolution{ resolution }
+		, mPixelSize{ sensorWidth / resolution }
 		, mPose{ pose }
 		, mCalibratedPose{ calibratedPose }
 		, mProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mPose) }
@@ -53,6 +56,7 @@ namespace PSS {
 	// getters
 	double LinearDetector::focalLength() const { return mFocalLength; }
 	double LinearDetector::sensorWidth() const { return mSensorWidth; }
+	int LinearDetector::resolution() const { return mResolution; }
 	double LinearDetector::sensorVariance() const { return mSensorVariance; }
 	double LinearDetector::centerOffset() const { return mCenterOffset; }
 	const Pose3& LinearDetector::pose() const { return mPose; }
@@ -71,7 +75,15 @@ namespace PSS {
 		else {
 			projected = projectedH.hnormalized()(0, 0);
 		}
-		return projected;
+
+		// quantizise the measurement
+		if (mResolution > 0) {
+			double pixel{ std::round(projected / mPixelSize) }; // round to nearest pixel
+			return pixel * mPixelSize;
+		}
+		else {
+			return projected;
+		}
 	}
 
 	double LinearDetector::safeProjectPoint(const Point3 &point, bool addNoise) {

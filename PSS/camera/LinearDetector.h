@@ -35,6 +35,8 @@ namespace PSS {
 		// intrinsics
 		double mFocalLength;
 		double mSensorWidth;
+		int mResolution;
+		double mPixelSize;
 		double mSensorVariance;
 		double mCenterOffset;
 
@@ -78,12 +80,13 @@ namespace PSS {
 		 *
 		 * \param fieldOfView The field of view of the linear detector in degrees.
 		 * \param sensorWidth Width of the sensor in metres.
+		 * \param resolution Pixel resolution of the sensor. Set to negative if no quantization should be used. Otherwise the resolution must be greater than 0.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0, 
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame. 
 		 *			The detector faces in the z-direction, as common in the pinhole %camera model. The x-direction is the sensor direction.
 		*/
-		LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose);
+		LinearDetector(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose);
 
 		/**
 		 * \brief Convenience constructor from FoV.
@@ -95,13 +98,14 @@ namespace PSS {
 		 *
 		 * \param fieldOfView The field of view of the linear detector in degrees.
 		 * \param sensorWidth Width of the sensor in metres.
+		 * \param resolution Pixel resolution of the sensor. Set to negative if no quantization should be used. Otherwise the resolution must be greater than 0.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
 		 *			The detector faces in the z-direction, as common in the pinhole %camera model. The x-direction is the sensor direction.
 		 * \param calibratedPose Calibrated pose of the linear detector with respect to the local frame.
 		*/
-		LinearDetector(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
+		LinearDetector(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
 
 		/**
 		 * \brief Constructor from linear detector properties.
@@ -111,12 +115,13 @@ namespace PSS {
 		 * \param focalLength The focal length of the linear detector in metres.
 		 * \param centerOffset Offset of the sensor center in metres. Read about %Camera Pinhole Model for more details about the offset.
 		 * \param sensorWidth Width of the sensor in metres.
+		 * \param resolution Pixel resolution of the sensor. Set to negative if no quantization should be used. Otherwise the resolution must be greater than 0.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
 		 *			The detector faces in the z-direction, as common in the pinhole %camera model. The x-direction is the sensor direction.
 		*/
-		LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose);
+		LinearDetector(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose);
 
 		/**
 		 * \brief Constructor from linear detector properties.
@@ -127,17 +132,19 @@ namespace PSS {
 		 * \param focalLength The focal length of the linear detector in metres.
 		 * \param centerOffset Offset of the sensor center in metres. Read about %Camera Pinhole Model for more details about the offset.
 		 * \param sensorWidth Width of the sensor in metres.
+		 * \param resolution Pixel resolution of the sensor. Set to negative if no quantization should be used. Otherwise the resolution must be greater than 0.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the linear detector with respect to the local frame.
 		 *			The detector faces in the z-direction, as common in the pinhole %camera model. The x-direction is the sensor direction.
 		 * \param calibratedPose Calibrated pose of the linear detector with respect to the local frame.
 		*/
-		LinearDetector(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
+		LinearDetector(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
 
 		// getters
 		double focalLength() const; /**< \brief Returns the focal length. */
 		double sensorWidth() const; /**< \brief Returns the sensor width. */
+		int resolution() const; /**< \brief Returns the sensors pixel resolution. */
 		double sensorVariance() const; /**< \brief Returns the sensor variance. */
 		double centerOffset() const; /**< \brief Returns the center offset. */
 		const Pose3& pose() const; /**< \brief Returns the true pose. */

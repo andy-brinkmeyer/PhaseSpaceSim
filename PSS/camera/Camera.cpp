@@ -13,21 +13,21 @@
 
 namespace PSS {
 	// constructors
-	Camera::Camera(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose)
-		: mHorizontalDetector{ fieldOfView, sensorWidth, sensorVariance, pose }
-		, mVerticalDetector{ fieldOfView, sensorWidth, sensorVariance, rotateToVertical(pose) } { }
+	Camera::Camera(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose)
+		: mHorizontalDetector{ fieldOfView, sensorWidth, resolution, sensorVariance, pose }
+		, mVerticalDetector{ fieldOfView, sensorWidth, resolution, sensorVariance, rotateToVertical(pose) } { }
 
-	Camera::Camera(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
-		: mHorizontalDetector{ fieldOfView, sensorWidth, sensorVariance, pose, calibratedPose }
-		, mVerticalDetector{ fieldOfView, sensorWidth, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
+	Camera::Camera(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
+		: mHorizontalDetector{ fieldOfView, sensorWidth, resolution, sensorVariance, pose, calibratedPose }
+		, mVerticalDetector{ fieldOfView, sensorWidth, resolution, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
 
-	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose)
-		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose }
-		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, rotateToVertical(pose) } { }
+	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose)
+		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, resolution, sensorVariance, pose }
+		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, resolution, sensorVariance, rotateToVertical(pose) } { }
 
-	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
-		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose, calibratedPose }
-		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
+	Camera::Camera(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose)
+		: mHorizontalDetector{ focalLength, centerOffset, sensorWidth, resolution, sensorVariance, pose, calibratedPose }
+		, mVerticalDetector{ focalLength, centerOffset, sensorWidth, resolution, sensorVariance, rotateToVertical(pose), rotateToVertical(calibratedPose) } { }
 
 	// getters
 	const LinearDetector& Camera::horizontalDetector() const { return mHorizontalDetector; }

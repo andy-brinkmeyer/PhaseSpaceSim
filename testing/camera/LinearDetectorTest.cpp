@@ -17,9 +17,10 @@ TEST(LinearDetectorTest, FOVConstructorTest) {
 
 	double fieldOfView{ 90.0 };
 	double sensorWidth{ 0.1 };
+	int resolution{ 30000 };
 	double sensorVariance{ 0.001 };
 
-	PSS::LinearDetector linDetector{ fieldOfView, sensorWidth, sensorVariance, pose };
+	PSS::LinearDetector linDetector{ fieldOfView, sensorWidth, resolution, sensorVariance, pose };
 
 	// check if the focal length was computed correctly
 	double expectedFocalLength{ 0.05 };
@@ -36,14 +37,16 @@ TEST(LinearDetectorTest, GettersTest) {
 
 	double focalLength{ 0.075 };
 	double sensorWidth{ 0.2 };
+	int resolution{ 30000 };
 	double centerOffset{ 0.1 };
 	double sensorVariance{ 0.001 };
 
-	PSS::LinearDetector linDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose };
+	PSS::LinearDetector linDetector{ focalLength, centerOffset, sensorWidth, resolution, sensorVariance, pose };
 
 	// check getters
 	ASSERT_EQ(linDetector.focalLength(), focalLength);
 	ASSERT_EQ(linDetector.sensorWidth(), sensorWidth);
+	ASSERT_EQ(linDetector.resolution(), resolution);
 	ASSERT_EQ(linDetector.centerOffset(), centerOffset);
 
 	ASSERT_EQ(linDetector.pose().translation(), position);
@@ -57,7 +60,7 @@ TEST(LinearDetectorTest, GettersTest) {
 	// test with calibratedPose
 	PSS::Point3 calibratedPosition{ 2.0, 2.0, 3.0 };
 	PSS::Pose3 calibratedPose{ rotation, calibratedPosition };
-	PSS::LinearDetector calibratedLinDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose, calibratedPose };
+	PSS::LinearDetector calibratedLinDetector{ focalLength, centerOffset, sensorWidth, resolution, sensorVariance, pose, calibratedPose };
 
 	Eigen::Matrix<double, 2, 4> calibratedProjMatrix;
 	calibratedProjMatrix << 0.075, 0, 0.1, -0.450, 0, 0, 1, -3.0;
@@ -72,10 +75,11 @@ TEST(LinearDetectorTest, ProjectionTest) {
 
 	double focalLength{ 0.075 };
 	double sensorWidth{ 0.2 };
+	int resolution{ 30000 };
 	double centerOffset{ 0.1 };
 	double sensorVariance{ 0.001 };
 
-	PSS::LinearDetector linDetector{ focalLength, centerOffset, sensorWidth, sensorVariance, pose };
+	PSS::LinearDetector linDetector{ focalLength, centerOffset, sensorWidth, resolution, sensorVariance, pose };
 
 	// check projection
 	PSS::Point3 point{ 1.0, 2.0, 4.0 };

@@ -13,13 +13,14 @@
 TEST(CameraTest, ConstructorTest) {
 	double fieldOfView{ 90 };
 	double sensorWidth{ 0.1 };
+	int resolution{ 30000 };
 	double sensorVariance{ 0.001 };
 
 	PSS::Point3 position{ 1.0, 2.0, 3.0 };
 	PSS::Rot3 rotation{ 1.0, 0.0, 0.0, 0.0 };
 	PSS::Pose3 pose{ rotation, position };
 
-	PSS::Camera* camera = new PSS::Camera{ fieldOfView, sensorWidth, sensorVariance, pose };
+	PSS::Camera* camera = new PSS::Camera{ fieldOfView, sensorWidth, resolution, sensorVariance, pose };
 
 	// check for horizontal detector
 	const PSS::LinearDetector* horizontalDetector = &camera->horizontalDetector();

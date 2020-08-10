@@ -30,11 +30,12 @@ namespace PSS {
 		 *
 		 * \param fieldOfView Field of view of the linear detectors in degrees.
 		 * \param sensorWidth Width of the sensors in metres.
+		 * \param resolution Pixel resolution of the sensors. Set to negative if no quantization should be used. Otherwise the resolution must be greater than 0.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the camera. The camera faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		*/
-		Camera(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose);
+		Camera(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose);
 
 		/**
 		 * \brief Convenience constructor from FoV. The cameras pose is not perfectly calibrated.
@@ -44,12 +45,13 @@ namespace PSS {
 		 *
 		 * \param fieldOfView Field of view of the linear detectors in degrees.
 		 * \param sensorWidth Width of the sensors in metres.
+		 * \param resolution Pixel resolution of the sensor. Set to negative if no quantization should be used. Otherwise the resolution must be greater than 0.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the camera. The camera faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		 * \param calibratedPose Calibrated pose of the camera. The camera faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		*/
-		Camera(double fieldOfView, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
+		Camera(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
 
 		/**
 		 * \brief Constructor from the linear detectors properties. The camera is perfectly calibrated.
@@ -59,11 +61,12 @@ namespace PSS {
 		 * \param focalLength The focal length of the linear detectors in metres.
 		 * \param centerOffset Offset of the sensors center in metres. Read about %Camera Pinhole Model for more details about the offset.
 		 * \param sensorWidth Width of the sensors in metres.
+		 * \param resolution Pixel resolution of the sensor. Set to negative if no quantization should be used. Otherwise the resolution must be greater than 0.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the camera. The camera faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		*/
-		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose);
+		Camera(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose);
 
 		/**
 		 * \brief Constructor from the linear detectors properties. The camera is not perfectly calibrated.
@@ -73,12 +76,13 @@ namespace PSS {
 		 * \param focalLength The focal length of the linear detectors in metres.
 		 * \param centerOffset Offset of the sensors center in metres. Read about %Camera Pinhole Model for more details about the offset.
 		 * \param sensorWidth Width of the sensors in metres.
+		 * \param resolution Pixel resolution of the sensor. Set to negative if no quantization should be used. Otherwise the resolution must be greater than 0.
 		 * \param sensorVariance Variance of the zero-mean Gaussian noise that added to true sensor measurements. The value cannot be 0,
 		 *			though adding noise can be disabled when projecting a point.
 		 * \param pose True pose of the camera. The camera faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		 * \param calibratedPose Calibrated pose of the camera. The camera faces in the z-direction, as common in the pinhole camera model. The x-direction is the sensor direction.
 		*/
-		Camera(double focalLength, double centerOffset, double sensorWidth, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
+		Camera(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
 
 		// getters
 		const LinearDetector& horizontalDetector() const; /**< \brief Returns a reference to the horizonal LinearDetector. */
