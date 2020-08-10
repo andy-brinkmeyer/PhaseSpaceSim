@@ -2,6 +2,7 @@
 out
 CMakeSettings.json
 .vs
+doc
 
 # matlab ignores
 /matlab/input/*
