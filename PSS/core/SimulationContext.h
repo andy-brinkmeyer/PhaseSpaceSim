@@ -13,37 +13,51 @@
 
 
 namespace PSS {
-	// structs that resemble the metadata
+	/**
+	 * \brief Configuration of a single Camera.
+	*/
 	struct CameraConfig {
-		std::string id;
-		Pose3 pose;
-		Pose3 calibratedPose;
-		double fieldOfView;
-		double sensorWidth;
-		double sensorVariance;
+		std::string id; /**< \brief ID of the camera. */
+		Pose3 pose; /**< \brief True pose of the camera. */
+		Pose3 calibratedPose; /**< \brief Calibrated pose of the camera. */
+		double fieldOfView; /**< \brief Field of view of the camera. */
+		double sensorWidth; /**< \brief Width of the cameras sensors. */
+		double sensorVariance; /**< \brief Variance of the zero-mean Gaussian sensor noise. */
 	};
 
+	/**
+	 * \brief Struct holding the meta data of a motion capture simulation setup.
+	*/
 	struct MetaData {
-		std::vector<CameraConfig> cameras;
-		std::vector<std::string> markers;
-		double samplingRate;
+		std::vector<CameraConfig> cameras; /**< \brief Vector of cameras and their configuration in the simulation setup.. */
+		std::vector<std::string> markers; /**< \brief Vecotor if IDs of the markers in the simulation. */
+		double samplingRate; /**< \brief Sampling rate used for simulation. */
 	};
 
-	// struct that resembles a measurement line
+	/**
+	 * \brief A single simulated inertial measurement.
+	 *
+	 * The measurement also contains the true pose of the marker for reference and for motion capture simulation.
+	*/
 	struct Measurement {
-		bool valid{ false }; // is true if the measurement is valid, is false if not (e.g. when the line could not be read)
-		int frame; // camera frame
-		double time; // time at current frame
-		std::string marker; // marker ID
-		std::vector<std::string> cameras; // vector of camera IDs from which the marker is visible
-		Point3 position; // position of the marker
-		Rot3 rotation; // rotation of the marker
-		Eigen::Vector3d accel; // acceleration of the marker
-		Eigen::Vector3d vel; // velocity of the marker
-		Eigen::Vector3d angVel; // angular velocity of the marker
+		bool valid{ false }; /**< \brief Is true if the measurement is valid, is false if not (e.g. when an input line could not be read). */
+		int frame; /**< \brief Current camera frame. */
+		double time; /**< \brief Time at current camera frame in seconds. */
+		std::string marker; /**< \brief  ID of the marker which corresponds to the measurement. */
+		std::vector<std::string> cameras; /**< \brief Vector of camera IDs from which the marker is visible. */
+		Point3 position; /**< \brief True position of the marker. */
+		Rot3 rotation; /**< \brief True rotation of the marker. */
+		Eigen::Vector3d accel; /**< \brief Simulated acceleration of the marker. It may contain noise depending on how it was generated. */
+		Eigen::Vector3d vel; /**< \brief True velocity of the marker. */
+		Eigen::Vector3d angVel; /**< \brief Simulated angular velocity of the marker. It may contain noise depending on how it was generated. */
 	};
 
-	// simulation context class
+	/**
+	 * \brief Class representing the context in which a simulation is run.
+	 *
+	 * This is basically a convenience class that reads the input data and can be passed to a Core object to set up the virtual 
+	 * motion capture system. It also contains some other utility functions for reading measurements and writing results.
+	*/
 	class SimulationContext {
 		// file paths
 		std::string mMetaPath;
@@ -65,19 +79,46 @@ namespace PSS {
 
 	public:
 		// constructors
+		/**
+		 * \brief Constructor from file paths.
+		 *
+		 * The metadata and measurements file must be in a specific format as generated from the PSS pipeline.
+		 *
+		 * \param metaPath Path to the .json file that holds the metadata.
+		 * \param measurementsPath Path to the .csv file that contains the simulated marker kinematics.
+		 * \param outputPath Path to the directory where the simulation output should be written.
+		*/
 		SimulationContext(const std::string& metaPath, const std::string& measurementsPath, const std::string& outputPath);
 
 		// destructor
+		/**
+		 * \brief Default destructor.
+		*/
 		~SimulationContext();
 
 		// getters
-		const MetaData& metaData();
-		const Measurement& currentMeasurement();
+		const MetaData& metaData(); /**< \brief returns the metadata. */
+		const Measurement& currentMeasurement(); /**< \brief Returns the current measurement. */
 
 		// read measurements
-		Measurement& nextMeasurement();
+		/**
+		 * \brief Read the next measurement from the input file.
+		 *
+		 * The parsed measurement is also stored in the object and can be obtained from the reference returned by currentMeasurement(). Hence, it suffices to 
+		 * get the reference to the current measurement once and when a new measurement is read the current measurement is updated.
+		 *
+		 * \return The parsed measurement.
+		*/
+		const Measurement& nextMeasurement();
 
 		// output
+		/**
+		 * \brief This is a convenience function that can be used to write a position estimate to the output file.
+		 *
+		 * \param marker ID of the marker whichs position was estimated.
+		 * \param estimate Estimated marker position.
+		 * \param measurement %Measurement from which the position was estimated.
+		*/
 		void writeEstimate(const std::string& marker, const Point3& estimate, const Measurement& measurement);
 	};
 }

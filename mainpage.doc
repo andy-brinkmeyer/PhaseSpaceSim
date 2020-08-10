@@ -1,0 +1,13 @@
+/*! \mainpage <strong>P</strong>hase<strong>S</strong>pace <strong>S</strong>imulator Documentation
+ *
+ * \section  intro_sec Introduction
+ *
+ * This library is part of a larger simulation pipeline. The library can be used to simulate a Linear Detector based motion
+ * capture system like the PhaseSpace X2E. 
+ *
+ * \section install_sec Installation
+ *
+ * The library can be built using CMake. All dependencies are header-only libraries which are included in the source code. Optionally, some 
+ * executables that test factor graph based estimation using camera and inertial measurements can also be built. Those depend on GTSAM which needs
+ * to be installed seperately. Check out the GTSAM documentation for more information.
+ */

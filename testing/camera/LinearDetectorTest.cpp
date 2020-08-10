@@ -88,12 +88,12 @@ TEST(LinearDetectorTest, ProjectionTest) {
 	// check safe projection
 	// check point behind camera
 	point(2, 0) = 2.0;
-	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), std::domain_error);
+	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), PSS::OutsideOfFieldOfView);
 
 	// check point outside of sensor range
 	point(2, 0) = 4.0;
 	point(0, 0) = -10.0;
-	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), std::domain_error);
+	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), PSS::OutsideOfFieldOfView);
 	point(0, 0) = 10.0;
-	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), std::domain_error);
+	ASSERT_THROW(linDetector.safeProjectPoint(point, addNoise), PSS::OutsideOfFieldOfView);
 }

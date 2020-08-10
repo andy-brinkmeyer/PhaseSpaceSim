@@ -44,7 +44,7 @@ namespace PSS {
 			equations.conservativeResize(equations.rows() + 1, 4);
 			equations.row(equations.rows() - 1) = tmpMat;
 		}
-		catch (const std::domain_error& e) { }
+		catch (const OutsideOfFieldOfView&) { }
 
 		// get equation for vertical detector
 		try {
@@ -52,14 +52,14 @@ namespace PSS {
 			equations.conservativeResize(equations.rows() + 1, 4);
 			equations.row(equations.rows() - 1) = tmpMat;
 		}
-		catch (const std::domain_error& e) { }
+		catch (const OutsideOfFieldOfView&) { }
 
 		// throw exception if point is not visible
 		if (equations.rows() > 0) {
 			return equations;
 		}
 		else {
-			throw std::domain_error("Point not visible by camera, no equations available.");
+			throw OutsideOfFieldOfView("Point not visible by camera, no equations available.");
 		}
 	}
 
