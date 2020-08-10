@@ -40,7 +40,7 @@ classdef PhaseSpaceSim < handle
         end
         
         function setCameraMetaData(obj, fieldOfView, sensorWidth,...
-                sensorVariance, ...
+                resolution, sensorVariance, ...
                 calibratedPositionOffset, calibratedRotation)
             % a NED system is used in the PSS library but Unity uses a Y-up
             % system. We need to adjust the rotations to fit the NED
@@ -55,6 +55,7 @@ classdef PhaseSpaceSim < handle
                    sensorWidth;
                obj.metaData.cameras(i).sensorVariance = ...
                    sensorVariance;
+               obj.metaData.cameras(i).resolution = resolution;
                
                % rotate camera to NED system
                rot = quaternion(obj.metaData.cameras(i).rotation.q0, ...

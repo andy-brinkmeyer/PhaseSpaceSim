@@ -33,6 +33,7 @@ calibratedPositionOffset = zeros(4,3);
 % More camera metadata, should be self explanatory.
 fieldOfView = 120; % in degree
 sensorWidth = 0.1; % width of the camera sensors in m
+resolution = 30000; % pixel resolution of the sensors
 sensorVariance = 0.000001; % Variance on measurements in m^2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,7 +55,7 @@ if applySmoothing
     marker = p.metaData.markers{j};
     fprintf('Smoothing Error for %s:\n', marker)
     disp(p.markerKinematics.(marker).smoothingError)
-end
+    end
 else 
     p.computeKinematics();
 end
