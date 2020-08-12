@@ -87,7 +87,7 @@ namespace PSS {
 		 *
 		 * \param metaPath Path to the .json file that holds the metadata.
 		 * \param measurementsPath Path to the .csv file that contains the simulated marker kinematics.
-		 * \param outputPath Path to the directory where the simulation output should be written.
+		 * \param outputPath Path to the file where the simulation output should be written.
 		*/
 		SimulationContext(const std::string& metaPath, const std::string& measurementsPath, const std::string& outputPath);
 

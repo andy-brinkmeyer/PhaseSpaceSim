@@ -26,6 +26,7 @@ target_include_directories(PSS_estimation PUBLIC
 target_link_libraries(PSS_estimation
 	PSS_lib
 	gtsam
+	gtsam_unstable
 )
 
 set_target_properties(PSS_estimation PROPERTIES LINKER_LANGUAGE CXX)

@@ -8,6 +8,7 @@ public class SimulationSettings : MonoBehaviour
 
     // these are assigned from within the Unity Editor
     public int captureRate;
+    public int cameraRate;
     public DataRecorder dataRecorder;
     public CameraManager cameraManager;
     public List<GameObject> trackedBodies;

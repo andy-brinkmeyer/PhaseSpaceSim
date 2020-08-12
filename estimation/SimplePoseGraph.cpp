@@ -12,32 +12,16 @@
 #include <gtsam/nonlinear/ISAM2.h>
 #include <gtsam/nonlinear/LevenbergMarquardtOptimizer.h>
 #include <gtsam/nonlinear/NonlinearFactor.h>
+#include <gtsam_unstable/nonlinear/IncrementalFixedLagSmoother.h>
 
 #include <boost/shared_ptr.hpp>
 
 #include <iostream>
 #include <cmath>
+#include <string>
 
 
-int main(int argc, char* argv[]) {
-	if (argc != 4) {
-		std::cout << "Invalid number of arguments. Metafile, measurements and output file need to be specified." << std::endl;
-		return -1;
-	}
-	
-	// create mocap simulation
-	PSS::SimulationContext simContext{ argv[1], argv[2], argv[3] };
-	PSS::Core core{ simContext };
-	const PSS::Measurement& currentMeasurement{ simContext.currentMeasurement() };
-
-	// skip the first measurements as they are not accurate due to spline fitting
-	simContext.nextMeasurement();
-
-	double initFrame{ 1000 };
-	while (currentMeasurement.frame < initFrame) {
-		simContext.nextMeasurement();
-	}
-
+void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::Measurement& currentMeasurement) {
 	// define IMU characteristics
 	double accelSigma{ 0.346 };
 	double gyroSigma{ 0.032 };
@@ -56,7 +40,7 @@ int main(int argc, char* argv[]) {
 
 	// define graph
 	gtsam::NonlinearFactorGraph* graph = new gtsam::NonlinearFactorGraph();
-	gtsam::ISAM2* isam = new gtsam::ISAM2();
+	gtsam::IncrementalFixedLagSmoother* isam = new gtsam::IncrementalFixedLagSmoother(1.0);
 
 	// define used keys
 	using gtsam::symbol_shorthand::X; // pose
@@ -124,66 +108,108 @@ int main(int argc, char* argv[]) {
 			haveCameraEstimate = false;
 		}
 
-		// create IMU factor
-		const gtsam::PreintegratedImuMeasurements constPreint{ dynamic_cast<const gtsam::PreintegratedImuMeasurements&>(*preintegrated) };
-		gtsam::ImuFactor imuFactor{ X(prevFrame), V(prevFrame), X(frame), V(frame), B(prevFrame), constPreint };
-		graph->add(imuFactor);
-
-		// create bias factor
-		gtsam::BetweenFactor<gtsam::imuBias::ConstantBias> biasFactor{ B(prevFrame), B(frame), imuBias, biasNoise };
-		graph->add(biasFactor);
-
-		// create MoCap factor
 		gtsam::GPSFactor gpsFactor;
 		if (haveCameraEstimate) {
+			// create IMU factor
+			const gtsam::PreintegratedImuMeasurements constPreint{ dynamic_cast<const gtsam::PreintegratedImuMeasurements&>(*preintegrated) };
+			gtsam::ImuFactor imuFactor{ X(prevFrame), V(prevFrame), X(frame), V(frame), B(prevFrame), constPreint };
+			graph->add(imuFactor);
+
+			// create bias factor
+			gtsam::BetweenFactor<gtsam::imuBias::ConstantBias> biasFactor{ B(prevFrame), B(frame), imuBias, biasNoise };
+			graph->add(biasFactor);
+
+			// create MoCap factor
 			gpsFactor = gtsam::GPSFactor{ X(frame), moCapEstimate, moCapNoise };
 			graph->add(gpsFactor);
+
+			// predict next state
+			gtsam::NavState predicted{ preintegrated->predict(prevState, prevBias) };
+
+			// insert initial values
+			initValues.insert(X(frame), predicted.pose());
+			initValues.insert(V(frame), predicted.v());
+			initValues.insert(B(frame), prevBias);
+
+			// optimize
+			try {
+				isam->update(*graph, initValues);
+				result = isam->calculateEstimate();
+			}
+			catch (std::exception& e) {
+				std::cout << e.what() << std::endl << "#############" << std::endl;
+				std::cout << predicted.pose() << std::endl << "#############" << std::endl;
+				std::cout << predicted.v() << std::endl << "#############" << std::endl;
+				std::cout << prevBias << std::endl << "#############" << std::endl;
+				std::cout << "Acc: " << currentMeasurement.accel << std::endl << "#############" << std::endl;
+				std::cout << "Angvel: " << currentMeasurement.angVel << std::endl << "#############" << std::endl;
+				std::cout << "#############" << std::endl << isam->marginalCovariance(X(prevFrame)) << std::endl << "#############" << std::endl;
+				std::cout << isam->marginalCovariance(V(prevFrame)) << std::endl << "#############" << std::endl;
+				std::cout << isam->marginalCovariance(B(prevFrame)) << std::endl << "#############" << std::endl;
+				break;
+			}
+			catch (...) {
+				std::cout << "Exception" << std::endl;
+			}
+
+			// save prev values for next iteration
+			gtsam::Pose3 estimatedPose{ result.at<gtsam::Pose3>(X(frame)) };
+			gtsam::Vector3 estimtedVel{ result.at<gtsam::Vector3>(V(frame)) };
+			prevState = gtsam::NavState(estimatedPose, estimtedVel);
+			prevBias = result.at<gtsam::imuBias::ConstantBias>(B(frame));
+
+			// reset graph and preintegration
+			graph->resize(0);
+			initValues.clear();
+			preintegrated->resetIntegrationAndSetBias(prevBias);
+
+			// write estimate
+			simContext.writeEstimate("Marker_1", estimatedPose.translation(), currentMeasurement);
+
+			// advance frame
+			prevFrame = frame;
 		}
-
-		// predict next state
-		gtsam::NavState predicted{ preintegrated->predict(prevState, prevBias) };
-
-		// insert initial values
-		initValues.insert(X(frame), predicted.pose());
-		initValues.insert(V(frame), predicted.v());
-		initValues.insert(B(frame), prevBias);
-
-		// optimize
-		try {
-			isam->update(*graph, initValues);
-			result = isam->calculateEstimate();
-		}
-		catch (std::exception e) {
-			std::cout << e.what() << std::endl << "#############" << std::endl;
-			std::cout << predicted.pose() << std::endl << "#############" << std::endl;
-			std::cout << predicted.v() << std::endl << "#############" << std::endl;
-			std::cout << prevBias << std::endl << "#############" << std::endl;
-			std::cout << "Acc: " << currentMeasurement.accel << std::endl << "#############" << std::endl;
-			std::cout << "Angvel: " << currentMeasurement.angVel << std::endl << "#############" << std::endl;
-			std::cout << "#############" << std::endl << isam->marginalCovariance(X(prevFrame)) << std::endl << "#############" << std::endl;
-			std::cout << isam->marginalCovariance(V(prevFrame)) << std::endl << "#############" << std::endl;
-			std::cout << isam->marginalCovariance(B(prevFrame)) << std::endl << "#############" << std::endl;
-			break;
-		}
-
-		// save prev values for next iteration
-		gtsam::Pose3 estimatedPose{ result.at<gtsam::Pose3>(X(frame)) };
-		gtsam::Vector3 estimtedVel{ result.at<gtsam::Vector3>(V(frame)) };
-		prevState = gtsam::NavState(estimatedPose, estimtedVel);
-		prevBias = result.at<gtsam::imuBias::ConstantBias>(B(frame));
-
-		// reset graph and preintegration
-		graph->resize(0);
-		initValues.clear();
-		preintegrated->resetIntegrationAndSetBias(prevBias);
-
-		// write estimate
-		simContext.writeEstimate("Marker_1", estimatedPose.translation(), currentMeasurement);
 
 		// next measurement
 		prevTime = currentMeasurement.time;
-		prevFrame = frame;
 		simContext.nextMeasurement();
 	}
+}
+
+void cameraEstimation(PSS::Core& core, PSS::SimulationContext& simContext) {
+	core.simulateCameraOnly(simContext);
+}
+
+int main(int argc, char* argv[]) {
+	if (argc != 5) {
+		std::cout << "Invalid number of arguments. Estimation type (graph or camera), metafile, measurements and output file need to be specified." << std::endl;
+		return -1;
+	}
+	
+	// create mocap simulation
+	PSS::SimulationContext simContext{ argv[2], argv[3], argv[4] };
+	PSS::Core core{ simContext };
+	const PSS::Measurement& currentMeasurement{ simContext.currentMeasurement() };
+
+	// skip the first measurements as they are not accurate due to spline fitting
+	simContext.nextMeasurement();
+
+	double initFrame{ 1000 };
+	while (currentMeasurement.frame < initFrame) {
+		simContext.nextMeasurement();
+	}
+
+	std::string estimationType{ argv[1] };
+	if (estimationType == "graph") {
+		poseGraph(core, simContext, currentMeasurement);
+	} else if (estimationType == "camera") {
+		cameraEstimation(core, simContext);
+	}
+	else {
+		std::cout << "Estimation type " << argv[1] << " not available. Choose either graph or camera." << std::endl;
+	}
+
+	std::cout << "Done!";
+
 	return 1;
 }

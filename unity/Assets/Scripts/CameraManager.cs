@@ -11,6 +11,9 @@ public class CameraManager : MonoBehaviour
     private bool isRecording;
     private double time;
     private int frame;
+    private double cameraRate;
+    private double currentCameraFrame;
+    private int prevCameraFrame;
 
 
     public void StartRecording()
@@ -18,6 +21,8 @@ public class CameraManager : MonoBehaviour
         isRecording = true;
         time = 0;
         frame = 0;
+        currentCameraFrame = 0.0;
+        prevCameraFrame = -1;
     }
 
     public void StopRecording()
@@ -36,16 +41,20 @@ public class CameraManager : MonoBehaviour
                 List<string> cameraList = new List<string>();
 
                 // get position of marker for each camera
-                foreach (GameObject camera in cameras)
+                if (prevCameraFrame < Convert.ToInt32(currentCameraFrame))
                 {
-                    // raycasting to determine if the object is visible
-                    Vector3 rayDirection = marker.transform.position - camera.transform.position;
-                    RaycastHit hit;
-                    Physics.Raycast(camera.transform.position, rayDirection, out hit, 100f);
-                    if (UnityEngine.Object.ReferenceEquals(hit.transform.gameObject, marker))
+                    foreach (GameObject camera in cameras)
                     {
-                        cameraList.Add(camera.name);
+                        // raycasting to determine if the object is visible
+                        Vector3 rayDirection = marker.transform.position - camera.transform.position;
+                        RaycastHit hit;
+                        Physics.Raycast(camera.transform.position, rayDirection, out hit, 100f);
+                        if (UnityEngine.Object.ReferenceEquals(hit.transform.gameObject, marker))
+                        {
+                            cameraList.Add(camera.name);
+                        }
                     }
+                    prevCameraFrame = Convert.ToInt32(currentCameraFrame);
                 }
                 simulationSettings.dataRecorder.WriteMeasurement(frame, time, marker.name, string.Join(";", cameraList), marker.transform.position, marker.transform.rotation.normalized);
             }
@@ -56,6 +65,9 @@ public class CameraManager : MonoBehaviour
     {
         time = 0;
         frame = 0;
+        cameraRate = (double)simulationSettings.cameraRate / simulationSettings.captureRate;
+        currentCameraFrame = 0.0;
+        prevCameraFrame = -1;
         cameras = new List<GameObject>();
         foreach (Transform child in transform)
         {
@@ -69,6 +81,7 @@ public class CameraManager : MonoBehaviour
         {
             WriteAllMarkerPositions();
             frame += 1;
+            currentCameraFrame += cameraRate;
             if (Time.captureDeltaTime == 0)
             {
                 time += Time.deltaTime;

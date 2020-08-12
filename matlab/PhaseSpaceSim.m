@@ -70,7 +70,7 @@ classdef PhaseSpaceSim < handle
                obj.metaData.cameras(i).rotation.q3 = q3;
                
                % set calibrated camera pose
-               if nargin > 4 
+               if nargin > 5 
                    obj.metaData.cameras(i).calibratedPosition.x = ...
                        obj.metaData.cameras(i).position.x + ...
                        calibratedPositionOffset(i,1);
@@ -81,7 +81,7 @@ classdef PhaseSpaceSim < handle
                        obj.metaData.cameras(i).position.z + ...
                        calibratedPositionOffset(i,3);
                end
-               if nargin > 5
+               if nargin > 6
                    obj.metaData.cameras(i).calibratedRotation.q0 = ...
                        calibratedRotation(i,1);
                    obj.metaData.cameras(i).calibratedRotation.q1 = ...

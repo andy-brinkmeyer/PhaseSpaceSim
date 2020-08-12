@@ -10,7 +10,7 @@ outputPath = 'output';
 % i represents the x, y and z direction of the i-th marker as ordered in
 % meta.json. If you want to smooth one trajectory individually you can use
 % the smoothSingleTrajectory method. 
-smoothingParams = 0.999999 * ones(3, 3);
+smoothingParams = 0.999999 * ones(1, 3);
 applySmoothing = true;
 
 % Define the IMU parameters. They should be self explanatory.
@@ -44,8 +44,8 @@ p = PhaseSpaceSim(inputPath, outputPath);
 p.readInput();
 
 % set metadata
-p.setCameraMetaData(fieldOfView, sensorWidth, sensorVariance, ...
-    calibratedPositionOffset);
+p.setCameraMetaData(fieldOfView, sensorWidth, resolution, ...
+    sensorVariance, calibratedPositionOffset);
 
 % compute kinematics
 if applySmoothing
