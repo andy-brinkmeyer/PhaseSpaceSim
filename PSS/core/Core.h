@@ -56,7 +56,7 @@ namespace PSS {
 		 * \param cameras List of cameras (camera IDs) from which the marker is visible.
 		 * \param addSensorNoise Add zero-mean Gaussian noise to the true sensor measurements.
 		*/
-		Point3 estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise = true) const;
+		Point3 estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise = true);
 
 		/**
 		 * \brief Estimate the position of a given Measurement using the simulated motion capture system.
@@ -69,7 +69,7 @@ namespace PSS {
 		 * \param measurement Measurement to be estimated.
 		 * \param addSensorNoise Add zero-mean Gaussian noise to the true sensor measurements.
 		*/
-		Point3 estimateFromCameras(const Measurement& measurement, bool addSensorNoise = true) const;
+		Point3 estimateFromCameras(const Measurement& measurement, bool addSensorNoise = true);
 
 		/**
 		 * \brief This is a convenience function that iterates through all the \link Measurement Measurements \endlink of a SimulationContext,

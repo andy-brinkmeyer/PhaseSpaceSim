@@ -19,6 +19,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <memory>
 
 
 void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::Measurement& currentMeasurement) {
@@ -39,8 +40,8 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 	boost::shared_ptr<gtsam::PreintegratedImuMeasurements> preintegrated = boost::make_shared<gtsam::PreintegratedImuMeasurements>(preintegrationParams, imuBias);
 
 	// define graph
-	gtsam::NonlinearFactorGraph* graph = new gtsam::NonlinearFactorGraph();
-	gtsam::IncrementalFixedLagSmoother* isam = new gtsam::IncrementalFixedLagSmoother(1.0);
+	std::unique_ptr<gtsam::NonlinearFactorGraph> graph = std::make_unique<gtsam::NonlinearFactorGraph>();
+	std::unique_ptr<gtsam::ISAM2> isam = std::make_unique<gtsam::ISAM2>();
 
 	// define used keys
 	using gtsam::symbol_shorthand::X; // pose
@@ -91,7 +92,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 		// advance variables
 		frame++;
 		dt = currentMeasurement.time - prevTime;
-		std::cout << "Estimating frame " << frame << std::endl;
+		std::cout << "Estimating frame " << frame << "\n";
 
 		// preintegrate measurements
 		preintegrated->integrateMeasurement(-currentMeasurement.accel, currentMeasurement.angVel, dt);
@@ -104,11 +105,10 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 			haveCameraEstimate = true;
 		}
 		catch (PSS::UnderdeterminedSystem e) {
-			std::cout << "Underdetermined Camera System" << std::endl;
+			std::cout << "Underdetermined Camera System" << "\n";
 			haveCameraEstimate = false;
 		}
 
-		gtsam::GPSFactor gpsFactor;
 		if (haveCameraEstimate) {
 			// create IMU factor
 			const gtsam::PreintegratedImuMeasurements constPreint{ dynamic_cast<const gtsam::PreintegratedImuMeasurements&>(*preintegrated) };
@@ -120,7 +120,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 			graph->add(biasFactor);
 
 			// create MoCap factor
-			gpsFactor = gtsam::GPSFactor{ X(frame), moCapEstimate, moCapNoise };
+			gtsam::GPSFactor gpsFactor{ X(frame), moCapEstimate, moCapNoise };
 			graph->add(gpsFactor);
 
 			// predict next state
@@ -137,19 +137,19 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 				result = isam->calculateEstimate();
 			}
 			catch (std::exception& e) {
-				std::cout << e.what() << std::endl << "#############" << std::endl;
-				std::cout << predicted.pose() << std::endl << "#############" << std::endl;
-				std::cout << predicted.v() << std::endl << "#############" << std::endl;
-				std::cout << prevBias << std::endl << "#############" << std::endl;
-				std::cout << "Acc: " << currentMeasurement.accel << std::endl << "#############" << std::endl;
-				std::cout << "Angvel: " << currentMeasurement.angVel << std::endl << "#############" << std::endl;
-				std::cout << "#############" << std::endl << isam->marginalCovariance(X(prevFrame)) << std::endl << "#############" << std::endl;
-				std::cout << isam->marginalCovariance(V(prevFrame)) << std::endl << "#############" << std::endl;
-				std::cout << isam->marginalCovariance(B(prevFrame)) << std::endl << "#############" << std::endl;
+				std::cout << e.what() << "\n" << "#############" << "\n";
+				std::cout << predicted.pose() << "\n" << "#############" << "\n";
+				std::cout << predicted.v() << "\n" << "#############" << "\n";
+				std::cout << prevBias << "\n" << "#############" << "\n";
+				std::cout << "Acc: " << currentMeasurement.accel << "\n" << "#############" << "\n";
+				std::cout << "Angvel: " << currentMeasurement.angVel << "\n" << "#############" << "\n";
+				std::cout << "#############" << "\n" << isam->marginalCovariance(X(prevFrame)) << "\n" << "#############" << "\n";
+				std::cout << isam->marginalCovariance(V(prevFrame)) << "\n" << "#############" << "\n";
+				std::cout << isam->marginalCovariance(B(prevFrame)) << "\n" << "#############" << "\n";
 				break;
 			}
 			catch (...) {
-				std::cout << "Exception" << std::endl;
+				std::cout << "Exception" << "\n";
 			}
 
 			// save prev values for next iteration
@@ -182,7 +182,7 @@ void cameraEstimation(PSS::Core& core, PSS::SimulationContext& simContext) {
 
 int main(int argc, char* argv[]) {
 	if (argc != 5) {
-		std::cout << "Invalid number of arguments. Estimation type (graph or camera), metafile, measurements and output file need to be specified." << std::endl;
+		std::cout << "Invalid number of arguments. Estimation type (graph or camera), metafile, measurements and output file need to be specified.\n";
 		return -1;
 	}
 	
@@ -206,10 +206,10 @@ int main(int argc, char* argv[]) {
 		cameraEstimation(core, simContext);
 	}
 	else {
-		std::cout << "Estimation type " << argv[1] << " not available. Choose either graph or camera." << std::endl;
+		std::cout << "Estimation type " << argv[1] << " not available. Choose either graph or camera.\n";
 	}
 
-	std::cout << "Done!";
+	std::cout << "Done!\n";
 
 	return 1;
 }

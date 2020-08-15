@@ -30,16 +30,16 @@ namespace PSS {
 	const CameraMap& Core::cameras() const { return mCameras; };
 
 	// estimation
-	Point3 Core::estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) const {
+	Point3 Core::estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) {
 		Eigen::Matrix<double, Eigen::Dynamic, 4> estimationEquations;
 
 		for (const std::string& cameraID : cameras) {
 			// lookup the camera
-			CameraMap::const_iterator foundCamera{ mCameras.find(cameraID) };
+			CameraMap::iterator foundCamera{ mCameras.find(cameraID) };
 			if (foundCamera == mCameras.end()) {
 				continue;
 			}
-			Camera currentCamera = foundCamera->second;
+			Camera& currentCamera{ foundCamera->second };
 
 			// get estimation equations and add to estimation matrix
 			try {
@@ -72,7 +72,7 @@ namespace PSS {
 		}
 	}
 
-	Point3 Core::estimateFromCameras(const Measurement& measurement, bool addSensorNoise) const {
+	Point3 Core::estimateFromCameras(const Measurement& measurement, bool addSensorNoise) {
 		return Core::estimateFromCameras(measurement.position, measurement.cameras, addSensorNoise);
 	}
 
