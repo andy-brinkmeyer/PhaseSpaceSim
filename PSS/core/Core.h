@@ -40,6 +40,17 @@ namespace PSS {
 		*/
 		Core(SimulationContext& simContext);
 
+		// destructor
+		/**
+		 * \brief Destructor.
+		 * 
+		 *  Explicitly declared because the default destructor throws some errors in valgrind while 
+		 *  the explicitly declared one does not.
+		 * 
+		 * TODO: Find what is actually causing the mismatched deletes when using the implicit destructor. Maybe some deleted constructor causes this behaviour?
+		*/
+		~Core();
+
 		// getters
 		const CameraMap& cameras() const; /**< Returns the CameraMap of the system. */
 

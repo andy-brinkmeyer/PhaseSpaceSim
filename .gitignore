@@ -1,8 +1,14 @@
 # general ignores
 out
 CMakeSettings.json
-.vs
 doc
+build
+
+# MVS ignores
+.vs
+
+# VS Code ignores
+.vscode
 
 # matlab ignores
 /matlab/input/*

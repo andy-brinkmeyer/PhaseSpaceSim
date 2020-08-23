@@ -22,22 +22,24 @@ namespace PSS {
 	{
 		// parse the json
 		std::ifstream metaStream{ mMetaPath };
-		metaStream >> mJson;
+		nlohmann::json json{ };
+		metaStream >> json;
 
 		// map json to structs
 		std::vector<CameraConfig> cameras;
-		for (int i{ 0 }; i < mJson["cameras"].size(); i++) {
-			nlohmann::json cameraObject{ mJson["cameras"][i] };
+		for (int i{ 0 }; i < json["cameras"].size(); i++) {
+			nlohmann::json cameraObject{ json["cameras"][i] };
+			cameraObject = cameraObject[0];
 			Point3 cameraPosition{ 
-				cameraObject["position"]["x"],
-				cameraObject["position"]["y"],
-				cameraObject["position"]["z"]
+				cameraObject["position"]["x"].get<double>(),
+				cameraObject["position"]["y"].get<double>(),
+				cameraObject["position"]["z"].get<double>()
 			};
 			Rot3 cameraRotation{
-				cameraObject["rotation"]["q0"],
-				cameraObject["rotation"]["q1"],
-				cameraObject["rotation"]["q2"],
-				cameraObject["rotation"]["q3"]
+				cameraObject["rotation"]["q0"].get<double>(),
+				cameraObject["rotation"]["q1"].get<double>(),
+				cameraObject["rotation"]["q2"].get<double>(),
+				cameraObject["rotation"]["q3"].get<double>()
 			};
 			Pose3 cameraPose{ cameraRotation, cameraPosition };
 
@@ -48,9 +50,9 @@ namespace PSS {
 			}
 			else {
 				calibratedCameraPosition = Point3{
-				cameraObject["calibratedPosition"]["x"],
-				cameraObject["calibratedPosition"]["y"],
-				cameraObject["calibratedPosition"]["z"]
+				cameraObject["calibratedPosition"]["x"].get<double>(),
+				cameraObject["calibratedPosition"]["y"].get<double>(),
+				cameraObject["calibratedPosition"]["z"].get<double>()
 				};
 			}
 			Rot3 calibratedCameraRotation;
@@ -59,33 +61,34 @@ namespace PSS {
 			}
 			else {
 				calibratedCameraRotation = Rot3{
-				cameraObject["calibratedRotation"]["q0"],
-				cameraObject["calibratedRotation"]["q1"],
-				cameraObject["calibratedRotation"]["q2"],
-				cameraObject["calibratedRotation"]["q3"]
+				cameraObject["calibratedRotation"]["q0"].get<double>(),
+				cameraObject["calibratedRotation"]["q1"].get<double>(),
+				cameraObject["calibratedRotation"]["q2"].get<double>(),
+				cameraObject["calibratedRotation"]["q3"].get<double>()
 				};
 			}
 			Pose3 calibratedCameraPose{ calibratedCameraRotation, calibratedCameraPosition };
+
 			CameraConfig cameraConfig{
-				cameraObject["id"],
+				cameraObject["id"].get<std::string>(),
 				cameraPose,
 				calibratedCameraPose,
-				cameraObject["fieldOfView"],
-				cameraObject["sensorWidth"],
-				cameraObject["resolution"],
-				cameraObject["sensorVariance"]
+				cameraObject["fieldOfView"].get<double>(),
+				cameraObject["sensorWidth"].get<double>(),
+				cameraObject["resolution"].get<int>(),
+				cameraObject["sensorVariance"].get<double>()
 			};
 			cameras.push_back(cameraConfig);
 		}
 		mMetaData.cameras = cameras;
 
 		std::vector<std::string> markers;
-		for (int i{ 0 }; i < mJson["markers"].size(); i++) {
-			markers.push_back(mJson["markers"][i]);
+		for (int i{ 0 }; i < json["markers"].size(); i++) {
+			markers.push_back(json["markers"][i].get<std::string>());
 		}
 		mMetaData.markers = markers;
 
-		mMetaData.samplingRate = mJson["samplingRate"];
+		mMetaData.samplingRate = json["samplingRate"].get<double>();
 
 		// prepare the csv reader
 		mCsvReader.read_header(io::ignore_no_column, 
@@ -130,16 +133,18 @@ namespace PSS {
 		);
 		if (mCurrentMeasurement.valid) {
 			// create the cameras vector
-			std::vector<std::string> cameras;
+			std::vector<std::string> cameras{ };
 			char delimiter{ ';' };
 			size_t pos{ 0 };
-			std::string token;
+			std::string token{ };
 			while ((pos = camerasString.find(delimiter)) != std::string::npos) {
 				token = camerasString.substr(0, pos);
 				cameras.push_back(token);
 				camerasString.erase(0, pos + 1);
 			}
-			cameras.push_back(camerasString);
+			if (camerasString.size() > 0) {
+				cameras.push_back(camerasString);
+			}
 			mCurrentMeasurement.cameras = cameras;
 
 			// create all the other data types

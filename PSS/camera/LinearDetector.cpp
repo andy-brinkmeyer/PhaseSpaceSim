@@ -11,18 +11,6 @@
 
 namespace PSS {
 	// contructors
-	LinearDetector::LinearDetector(const LinearDetector& linearDetector)
-		: LinearDetector::LinearDetector(
-			linearDetector.mFocalLength,
-			linearDetector.mCenterOffset,
-			linearDetector.mSensorWidth,
-			linearDetector.mResolution,
-			linearDetector.mSensorVariance,
-			linearDetector.mPose,
-			linearDetector.mCalibratedPose
-		)
-	{ }
-
 	LinearDetector::LinearDetector(double fieldOfView, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose)
 		: LinearDetector::LinearDetector(fieldOfView, sensorWidth, resolution, sensorVariance, pose, pose)
 	{ }
@@ -48,8 +36,7 @@ namespace PSS {
 		, mCalibratedProjectionMatrix{ computeProjectionMatrix(mFocalLength, mCenterOffset, mSensorWidth, mCalibratedPose) }
 		, mC1{ mCalibratedProjectionMatrix.row(0) }
 		, mC2{ mCalibratedProjectionMatrix.row(1) }
-		, mRandomDevice{ }
-		, mRandomGenerator{ mRandomDevice() }
+		, mRandomGenerator{ std::random_device{}() }
 		, mNormalDistribution{ 0.0, sensorVariance }
 	{ }
 
@@ -68,7 +55,7 @@ namespace PSS {
 	double LinearDetector::projectPoint(const Point3 &point, bool addNoise) {
 		Eigen::Vector4d pointH{ point.homogeneous() };
 		Eigen::Vector2d projectedH{ mProjectionMatrix * pointH };
-		double projected;
+		double projected{ };
 		if (addNoise) {
 			projected = projectedH.hnormalized()(0, 0) + mNormalDistribution(mRandomGenerator);
 		}

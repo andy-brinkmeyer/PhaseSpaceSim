@@ -181,9 +181,9 @@ void cameraEstimation(PSS::Core& core, PSS::SimulationContext& simContext) {
 }
 
 int main(int argc, char* argv[]) {
-	if (argc != 5) {
+	if (argc < 5) {
 		std::cout << "Invalid number of arguments. Estimation type (graph or camera), metafile, measurements and output file need to be specified.\n";
-		return -1;
+		return 0;
 	}
 	
 	// create mocap simulation
@@ -191,10 +191,14 @@ int main(int argc, char* argv[]) {
 	PSS::Core core{ simContext };
 	const PSS::Measurement& currentMeasurement{ simContext.currentMeasurement() };
 
-	// skip the first measurements as they are not accurate due to spline fitting
+	// skip the first measurements since they can be weird due to smoothing spline fitting
+	double initFrame;
+	if (argc >= 6) {
+		initFrame = atoi(argv[5]);
+	} else {
+		initFrame = 0;
+	}
 	simContext.nextMeasurement();
-
-	double initFrame{ 1000 };
 	while (currentMeasurement.frame < initFrame) {
 		simContext.nextMeasurement();
 	}
@@ -211,5 +215,5 @@ int main(int argc, char* argv[]) {
 
 	std::cout << "Done!\n";
 
-	return 1;
+	return 0;
 }

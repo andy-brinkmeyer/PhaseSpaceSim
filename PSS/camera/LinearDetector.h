@@ -58,19 +58,11 @@ namespace PSS {
 		Eigen::Matrix<double, 1, 4> mC2;	/**< Second row of LinearDetector::mProjectionMatrix matrix for quick access */
 
 		// gaussian noise
-		std::random_device mRandomDevice;
 		std::mt19937 mRandomGenerator;
 		std::normal_distribution<double> mNormalDistribution;
 
 	public:
 		// constructor
-		/**
-		 * \brief Consructor from LinearDetector isntance.
-		 *
-		 * \param linearDetector LinearDetector instance.
-		*/
-		LinearDetector(const LinearDetector& linearDetector);
-
 		/**
 		 * \brief Convenience constructor from FoV.
 		 * 

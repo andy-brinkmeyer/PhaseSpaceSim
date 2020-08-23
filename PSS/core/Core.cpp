@@ -19,12 +19,14 @@ namespace PSS {
 	Core::Core(const CameraMap& cameras) : mCameras{ cameras } { }
 
 	Core::Core(SimulationContext& simContext) {
-		const std::vector<CameraConfig>& cameraConfigs{ simContext.metaData().cameras };
-		for (int i{ 0 }; i < cameraConfigs.size(); i++) {
-			Camera camera{ cameraConfigs[i].fieldOfView, cameraConfigs[i].sensorWidth, cameraConfigs[i].resolution, cameraConfigs[i].sensorVariance, cameraConfigs[i].pose, cameraConfigs[i].calibratedPose };
-			mCameras.insert({ cameraConfigs[i].id, camera });
+		for (CameraConfig cameraConfig : simContext.metaData().cameras) {
+			Camera camera{ cameraConfig.fieldOfView, cameraConfig.sensorWidth, cameraConfig.resolution, cameraConfig.sensorVariance, cameraConfig.pose, cameraConfig.calibratedPose };
+			mCameras.insert({ cameraConfig.id, camera });
 		}
 	}
+
+	// destructor
+	Core::~Core() { }
 
 	// getters
 	const CameraMap& Core::cameras() const { return mCameras; };
@@ -73,7 +75,7 @@ namespace PSS {
 	}
 
 	Point3 Core::estimateFromCameras(const Measurement& measurement, bool addSensorNoise) {
-		return Core::estimateFromCameras(measurement.position, measurement.cameras, addSensorNoise);
+		return estimateFromCameras(measurement.position, measurement.cameras, addSensorNoise);
 	}
 
 	void Core::simulateCameraOnly(SimulationContext& simContext, bool addSensorNoise) {

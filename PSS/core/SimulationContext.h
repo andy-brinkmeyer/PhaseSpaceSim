@@ -65,9 +65,6 @@ namespace PSS {
 		std::string mMeasuremtsPath;
 		std::string mOutputPath;
 
-		// json object
-		nlohmann::json mJson;
-
 		// extracted metadata
 		MetaData mMetaData;
 
