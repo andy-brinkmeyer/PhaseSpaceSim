@@ -27,9 +27,7 @@ namespace PSS {
 
 		// map json to structs
 		std::vector<CameraConfig> cameras;
-		for (int i{ 0 }; i < json["cameras"].size(); i++) {
-			nlohmann::json cameraObject{ json["cameras"][i] };
-			cameraObject = cameraObject[0];
+		for (nlohmann::json cameraObject : json["cameras"]) {
 			Point3 cameraPosition{ 
 				cameraObject["position"]["x"].get<double>(),
 				cameraObject["position"]["y"].get<double>(),
