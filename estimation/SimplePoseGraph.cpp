@@ -22,13 +22,15 @@
 #include <memory>
 
 
-void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::Measurement& currentMeasurement) {
+void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::Measurement& currentMeasurement, double lag) {
 	// define IMU characteristics
 	double accelSigma{ 0.346 };
 	double gyroSigma{ 0.032 };
-	gtsam::Matrix33 accelCovariance{ gtsam::I_3x3 * pow(accelSigma, 2) };
-	gtsam::Matrix33 gyroCovariance{ gtsam::I_3x3 * pow(gyroSigma, 2) };
-	gtsam::Matrix33 integrationCovariance{ gtsam::I_3x3 * 1e-8 };
+	gtsam::Matrix3 accelCovariance{ gtsam::I_3x3 * pow(accelSigma, 2) };
+	gtsam::Matrix3 gyroCovariance{ gtsam::I_3x3 * pow(gyroSigma, 2) };
+	double integrationCovFactor{ 0.0033 };
+	gtsam::Matrix3 baseIntCov{ gtsam::I_3x3 * 1e-8 };
+	gtsam::Matrix3 integrationCovariance{ gtsam::I_3x3 * integrationCovFactor };
 	gtsam::imuBias::ConstantBias imuBias{ gtsam::Vector3{ 0, 0, 0 }, gtsam::Vector3{ 0, 0, 0 } };
 
 	// define preintegration
@@ -41,7 +43,11 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 
 	// define graph
 	std::unique_ptr<gtsam::NonlinearFactorGraph> graph = std::make_unique<gtsam::NonlinearFactorGraph>();
-	std::unique_ptr<gtsam::ISAM2> isam = std::make_unique<gtsam::ISAM2>();
+	// std::unique_ptr<gtsam::ISAM2> isam = std::make_unique<gtsam::ISAM2>();
+	std::unique_ptr<gtsam::IncrementalFixedLagSmoother> isam = std::make_unique<gtsam::IncrementalFixedLagSmoother>(lag);
+
+	// define timestamp map
+	gtsam::IncrementalFixedLagSmoother::KeyTimestampMap timestamps{ };
 
 	// define used keys
 	using gtsam::symbol_shorthand::X; // pose
@@ -66,6 +72,9 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 	graph->addPrior(X(0), initPose, poseNoise);
 	graph->addPrior(V(0), initVel, velocityNoise);
 	graph->addPrior(B(0), imuBias, biasNoise);
+	timestamps[X(0)] = 0.0;
+	timestamps[V(0)] = 0.0;
+	timestamps[B(0)] = 0.0;
 
 	// add initial values
 	gtsam::Values initValues;
@@ -95,7 +104,9 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 		std::cout << "Estimating frame " << frame << "\n";
 
 		// preintegrate measurements
-		preintegrated->integrateMeasurement(-currentMeasurement.accel, currentMeasurement.angVel, dt);
+		double normAccel{ currentMeasurement.accel.norm() };
+		preintegrationParams->integrationCovariance = (gtsam::I_3x3 * integrationCovFactor * normAccel) + baseIntCov;
+		preintegrated->integrateMeasurement(-currentMeasurement.accel, currentMeasurement.accel, dt);
 
 		// estimate point from camera
 		gtsam::Point3 moCapEstimate;
@@ -130,27 +141,13 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 			initValues.insert(X(frame), predicted.pose());
 			initValues.insert(V(frame), predicted.v());
 			initValues.insert(B(frame), prevBias);
+			timestamps[X(frame)] = frame;
+			timestamps[V(frame)] = frame;
+			timestamps[B(frame)] = frame;
 
 			// optimize
-			try {
-				isam->update(*graph, initValues);
-				result = isam->calculateEstimate();
-			}
-			catch (std::exception& e) {
-				std::cout << e.what() << "\n" << "#############" << "\n";
-				std::cout << predicted.pose() << "\n" << "#############" << "\n";
-				std::cout << predicted.v() << "\n" << "#############" << "\n";
-				std::cout << prevBias << "\n" << "#############" << "\n";
-				std::cout << "Acc: " << currentMeasurement.accel << "\n" << "#############" << "\n";
-				std::cout << "Angvel: " << currentMeasurement.angVel << "\n" << "#############" << "\n";
-				std::cout << "#############" << "\n" << isam->marginalCovariance(X(prevFrame)) << "\n" << "#############" << "\n";
-				std::cout << isam->marginalCovariance(V(prevFrame)) << "\n" << "#############" << "\n";
-				std::cout << isam->marginalCovariance(B(prevFrame)) << "\n" << "#############" << "\n";
-				break;
-			}
-			catch (...) {
-				std::cout << "Exception" << "\n";
-			}
+			isam->update(*graph, initValues, timestamps);
+			result = isam->calculateEstimate();
 
 			// save prev values for next iteration
 			gtsam::Pose3 estimatedPose{ result.at<gtsam::Pose3>(X(frame)) };
@@ -162,6 +159,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 			graph->resize(0);
 			initValues.clear();
 			preintegrated->resetIntegrationAndSetBias(prevBias);
+			timestamps.clear();
 
 			// write estimate
 			simContext.writeEstimate("Marker_1", estimatedPose.translation(), currentMeasurement);
@@ -203,9 +201,17 @@ int main(int argc, char* argv[]) {
 		simContext.nextMeasurement();
 	}
 
+	double lag;
+	if (argc >= 7) {
+		lag = atof(argv[6]);
+	}
+	else {
+		lag = 10.0;
+	}
+
 	std::string estimationType{ argv[1] };
 	if (estimationType == "graph") {
-		poseGraph(core, simContext, currentMeasurement);
+		poseGraph(core, simContext, currentMeasurement, lag);
 	} else if (estimationType == "camera") {
 		cameraEstimation(core, simContext);
 	}
