@@ -6,7 +6,7 @@ if (MSVC)
 endif()
 
 # create targets
-add_library(PSS_lib STATIC
+add_library(PSS_lib
 	"camera/LinearDetector.h" "camera/LinearDetector.cpp"
 	"camera/Camera.h" "camera/Camera.cpp"
 	"core/Core.h" "core/Core.cpp"

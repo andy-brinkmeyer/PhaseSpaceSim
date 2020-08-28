@@ -29,7 +29,7 @@ namespace PSS {
 	Core::~Core() { }
 
 	// getters
-	const CameraMap& Core::cameras() const { return mCameras; };
+	CameraMap& Core::cameras() { return mCameras; };
 
 	// estimation
 	Point3 Core::estimateFromCameras(const Point3& point, const std::vector<std::string>& cameras, bool addSensorNoise) {

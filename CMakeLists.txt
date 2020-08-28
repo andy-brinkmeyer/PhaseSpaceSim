@@ -6,6 +6,9 @@ project ("PSS"  VERSION 0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# build shared
+option(BUILD_SHARED_LIBS "Select if shared libraries should be built." ON)
+
 # sub-projects
 add_subdirectory ("PSS")
 

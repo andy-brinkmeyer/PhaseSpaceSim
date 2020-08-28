@@ -59,7 +59,7 @@ namespace PSS {
 	 * This is basically a convenience class that reads the input data and can be passed to a Core object to set up the virtual 
 	 * motion capture system. It also contains some other utility functions for reading measurements and writing results.
 	*/
-	class SimulationContext {
+	class __declspec(dllexport) SimulationContext {
 		// file paths
 		std::string mMetaPath;
 		std::string mMeasuremtsPath;

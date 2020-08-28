@@ -1,5 +1,8 @@
 #include <PSS/core/SimulationContext.h>
 #include <PSS/core/Core.h>
+#include <PSS/camera/Camera.h>
+#include <PSS/camera/LinearDetector.h>
+#include <PSS/factors/LinearDetectorFactor.h>
 
 #include <gtsam/navigation/ImuFactor.h>
 #include <gtsam/navigation/GPSFactor.h>
@@ -30,14 +33,13 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 	gtsam::Matrix3 gyroCovariance{ gtsam::I_3x3 * pow(gyroSigma, 2) };
 	double integrationCovFactor{ 0.0033 };
 	gtsam::Matrix3 baseIntCov{ gtsam::I_3x3 * 1e-8 };
-	gtsam::Matrix3 integrationCovariance{ gtsam::I_3x3 * integrationCovFactor };
 	gtsam::imuBias::ConstantBias imuBias{ gtsam::Vector3{ 0, 0, 0 }, gtsam::Vector3{ 0, 0, 0 } };
 
 	// define preintegration
 	boost::shared_ptr<gtsam::PreintegrationParams> preintegrationParams = gtsam::PreintegratedImuMeasurements::Params::MakeSharedD();
 	preintegrationParams->accelerometerCovariance = accelCovariance;
 	preintegrationParams->gyroscopeCovariance = gyroCovariance;
-	preintegrationParams->integrationCovariance = integrationCovariance;
+	preintegrationParams->integrationCovariance = baseIntCov;
 
 	boost::shared_ptr<gtsam::PreintegratedImuMeasurements> preintegrated = boost::make_shared<gtsam::PreintegratedImuMeasurements>(preintegrationParams, imuBias);
 
@@ -61,6 +63,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 	gtsam::noiseModel::Diagonal::shared_ptr poseNoise{ gtsam::noiseModel::Diagonal::Sigmas(poseNoiseVec) };
 	gtsam::noiseModel::Isotropic::shared_ptr velocityNoise{ gtsam::noiseModel::Isotropic::Sigma(3, 0.1) };
 	gtsam::noiseModel::Isotropic::shared_ptr biasNoise{ gtsam::noiseModel::Isotropic::Sigma(6, 0.1) };
+	gtsam::noiseModel::Isotropic::shared_ptr linearDetectorNoise{ gtsam::noiseModel::Isotropic::Sigma(1, 0.001) };
 
 	// define priors
 	gtsam::Point3 initPos{ currentMeasurement.position };
@@ -104,12 +107,12 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 		std::cout << "Estimating frame " << frame << "\n";
 
 		// preintegrate measurements
-		double normAccel{ currentMeasurement.accel.norm() };
-		preintegrationParams->integrationCovariance = (gtsam::I_3x3 * integrationCovFactor * normAccel) + baseIntCov;
+		// double normAccel{ currentMeasurement.accel.norm() };
+		// preintegrationParams->integrationCovariance = (gtsam::I_3x3 * integrationCovFactor * normAccel) + baseIntCov;
 		preintegrated->integrateMeasurement(-currentMeasurement.accel, currentMeasurement.accel, dt);
 
 		// estimate point from camera
-		gtsam::Point3 moCapEstimate;
+		/*gtsam::Point3 moCapEstimate;
 		bool haveCameraEstimate;
 		try {
 			moCapEstimate = core.estimateFromCameras(currentMeasurement);
@@ -118,9 +121,33 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 		catch (PSS::UnderdeterminedSystem e) {
 			std::cout << "Underdetermined Camera System" << "\n";
 			haveCameraEstimate = false;
+		}*/
+
+		// create LinearDetectorFactors
+		bool haveFactor{ false };
+		for (const std::string& cameraID : currentMeasurement.cameras) {
+			PSS::CameraMap::iterator foundCamera{ core.cameras().find(cameraID) };
+			if (foundCamera == core.cameras().end()) {
+				continue;
+			}
+			PSS::Camera& camera{ foundCamera->second };
+			try {
+				double measurement{ camera.horizontalDetector().safeProjectPoint(currentMeasurement.position) };
+				PSS::LinearDetectorFactor linDetFactor{ X(frame), measurement, camera.horizontalDetector().calibratedProjectionMatrix(), linearDetectorNoise };
+				graph->add(linDetFactor);
+				haveFactor = true;
+			}
+			catch (PSS::OutsideOfFieldOfView&) { }
+			try {
+				double measurement{ camera.verticalDetector().safeProjectPoint(currentMeasurement.position) };
+				PSS::LinearDetectorFactor linDetFactor{ X(frame), measurement, camera.verticalDetector().calibratedProjectionMatrix(), linearDetectorNoise };
+				graph->add(linDetFactor);
+				haveFactor = true;
+			}
+			catch (PSS::OutsideOfFieldOfView&) {}
 		}
 
-		if (haveCameraEstimate) {
+		if (haveFactor) {
 			// create IMU factor
 			const gtsam::PreintegratedImuMeasurements constPreint{ dynamic_cast<const gtsam::PreintegratedImuMeasurements&>(*preintegrated) };
 			gtsam::ImuFactor imuFactor{ X(prevFrame), V(prevFrame), X(frame), V(frame), B(prevFrame), constPreint };
@@ -131,8 +158,8 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 			graph->add(biasFactor);
 
 			// create MoCap factor
-			gtsam::GPSFactor gpsFactor{ X(frame), moCapEstimate, moCapNoise };
-			graph->add(gpsFactor);
+			/*gtsam::GPSFactor gpsFactor{ X(frame), moCapEstimate, moCapNoise };
+			graph->add(gpsFactor);*/
 
 			// predict next state
 			gtsam::NavState predicted{ preintegrated->predict(prevState, prevBias) };

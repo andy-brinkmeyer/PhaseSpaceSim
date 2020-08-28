@@ -12,19 +12,36 @@ if(MSVC)
 endif()
 
 # define targets
-add_executable(PSS_estimation
-	"SimplePoseGraph.cpp")
+add_library(PSS_factors SHARED
+	"PSS/factors/LinearDetectorFactor.h" "PSS/factors/LinearDetectorFactor.cpp")
 
-target_include_directories(PSS_estimation PUBLIC
+target_link_libraries(PSS_factors
+	PUBLIC PSS_lib
+	PUBLIC gtsam
+	PUBLIC gtsam_unstable
+)
+
+target_include_directories(PSS_factors PUBLIC
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/PSS/3rdparty
 	${GTSAM_INCLUDE_DIR}
 	${GTSAM_INCLUDE_DIR}/gtsam/3rdparty
-	Boost::headers
-)
+	Boost::headers)
+
+add_executable(PSS_estimation
+	"SimplePoseGraph.cpp")
+
+target_include_directories(PSS_estimation PRIVATE
+	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/estimation
+	${CMAKE_SOURCE_DIR}/PSS/3rdparty
+	${GTSAM_INCLUDE_DIR}
+	${GTSAM_INCLUDE_DIR}/gtsam/3rdparty
+	Boost::headers)
 
 target_link_libraries(PSS_estimation
 	PRIVATE PSS_lib
+	PRIVATE PSS_factors
 	PRIVATE gtsam
 	PRIVATE gtsam_unstable
 )

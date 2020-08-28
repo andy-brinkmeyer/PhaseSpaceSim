@@ -16,7 +16,7 @@ namespace PSS {
 	 * This is done by removing the row of the projection matrix that would correspond to the second sensor dimension. 
 	 * The resulting LinearDetector::ProjectionMatrix is of dimension 2x4.
 	*/
-	class LinearDetector {
+	class __declspec(dllexport) LinearDetector {
 	public:
 		// typedefs
 		/**

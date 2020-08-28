@@ -13,7 +13,7 @@ namespace PSS {
 	 * The PhaseSpace system uses cameras that are made up of two independent optical linear detectors that are rotated against each other.
 	 * Here the rotation is assumed to be 90 degrees.
 	*/
-	class Camera {
+	class __declspec(dllexport) Camera {
 		LinearDetector mHorizontalDetector;
 		LinearDetector mVerticalDetector;
 
@@ -85,8 +85,8 @@ namespace PSS {
 		Camera(double focalLength, double centerOffset, double sensorWidth, int resolution, double sensorVariance, const Pose3& pose, const Pose3& calibratedPose);
 
 		// getters
-		const LinearDetector& horizontalDetector() const; /**< \brief Returns a reference to the horizonal LinearDetector. */
-		const LinearDetector& verticalDetector() const; /**< \brief Returns a reference to the vertical LinearDetector. */
+		LinearDetector& horizontalDetector(); /**< \brief Returns a reference to the horizonal LinearDetector. */
+		LinearDetector& verticalDetector(); /**< \brief Returns a reference to the vertical LinearDetector. */
 
 		// estimation
 		/**

@@ -21,7 +21,7 @@ namespace PSS {
 	 *
 	 * The Core class holds the cameras that make up the motion capture system and provides a basic estimation algorithm.
 	*/
-	class Core {
+	class __declspec(dllexport) Core {
 		CameraMap mCameras;
 
 	public:
@@ -52,7 +52,7 @@ namespace PSS {
 		~Core();
 
 		// getters
-		const CameraMap& cameras() const; /**< Returns the CameraMap of the system. */
+		CameraMap& cameras(); /**< Returns the CameraMap of the system. */
 
 		// estimation
 		/**

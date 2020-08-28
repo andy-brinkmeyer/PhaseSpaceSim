@@ -33,9 +33,9 @@ TEST_F(CoreTestWithContext, ConstructFromSimContextTest) {
 
 	// check if the cameras are set up correctly
 	ASSERT_EQ(core.cameras().size(), numCameras);
-	PSS::CameraMap::const_iterator foundCamera{ core.cameras().find(camera2ID) };
-	const PSS::Camera& cam2{ foundCamera->second };
-	const PSS::LinearDetector& horizontalDet{ cam2.horizontalDetector() };
+	PSS::CameraMap::iterator foundCamera{ core.cameras().find(camera2ID) };
+	PSS::Camera& cam2{ foundCamera->second };
+	PSS::LinearDetector& horizontalDet{ cam2.horizontalDetector() };
 	ASSERT_TRUE(horizontalDet.pose().translation().isApprox(camera2Pos)); // check position
 	ASSERT_TRUE(horizontalDet.pose().rotation().matrix().isApprox(camera2Rot.matrix())); // check rotation
 

@@ -9,7 +9,8 @@ add_executable(PSS_test
 	"camera/CameraTest.cpp"
 	"core/CoreTest.cpp"
 	"core/SimulationContextTest.h" "core/SimulationContextTest.cpp")
-target_include_directories(PSS_test PUBLIC
+
+target_include_directories(PSS_test PRIVATE
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/PSS/3rdparty
 	${GTEST_INCLUDE_DIR}

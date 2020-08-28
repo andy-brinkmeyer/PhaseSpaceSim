@@ -12,7 +12,7 @@ namespace PSS {
 	/**
 	 * \brief Class that represents a rotatin in three dimensional space.
 	*/
-	class Rot3 {
+	class __declspec(dllexport) Rot3 {
 		Eigen::Matrix3d mRot;
 
 	public:

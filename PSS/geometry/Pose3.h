@@ -16,7 +16,7 @@ namespace PSS {
 	 *
 	 * The pose consists of the rotation and position in the local frame.
 	*/
-	class Pose3 {
+	class __declspec(dllexport) Pose3 {
 		Rot3 mRot;
 		Point3 mPos;
 
