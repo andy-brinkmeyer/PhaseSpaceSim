@@ -63,7 +63,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 	gtsam::noiseModel::Diagonal::shared_ptr poseNoise{ gtsam::noiseModel::Diagonal::Sigmas(poseNoiseVec) };
 	gtsam::noiseModel::Isotropic::shared_ptr velocityNoise{ gtsam::noiseModel::Isotropic::Sigma(3, 0.1) };
 	gtsam::noiseModel::Isotropic::shared_ptr biasNoise{ gtsam::noiseModel::Isotropic::Sigma(6, 0.1) };
-	gtsam::noiseModel::Isotropic::shared_ptr linearDetectorNoise{ gtsam::noiseModel::Isotropic::Sigma(1, 0.001) };
+	gtsam::noiseModel::Isotropic::shared_ptr linearDetectorNoise{ gtsam::noiseModel::Isotropic::Sigma(1, 0.00005) };
 
 	// define priors
 	gtsam::Point3 initPos{ currentMeasurement.position };
