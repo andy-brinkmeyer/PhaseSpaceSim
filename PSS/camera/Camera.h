@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../PSS_EXPORT.h"
+
 #include "LinearDetector.h"
 #include "../geometry/Pose3.h"
 
@@ -13,7 +15,7 @@ namespace PSS {
 	 * The PhaseSpace system uses cameras that are made up of two independent optical linear detectors that are rotated against each other.
 	 * Here the rotation is assumed to be 90 degrees.
 	*/
-	class __declspec(dllexport) Camera {
+	class PSS_EXPORT Camera {
 		LinearDetector mHorizontalDetector;
 		LinearDetector mVerticalDetector;
 

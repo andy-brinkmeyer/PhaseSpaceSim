@@ -4,6 +4,9 @@ CMakeSettings.json
 doc
 build
 
+# Mac ignores
+.DS_Store
+
 # MVS ignores
 .vs
 

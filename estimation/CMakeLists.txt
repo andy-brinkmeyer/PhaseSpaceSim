@@ -8,7 +8,7 @@ find_package(GTSAM REQUIRED)
 # for MSVC increase /STACK size
 # GTSAM uses some operations that might lead to stack overflows when our graph grows too large
 if(MSVC)
-	set(STACK_SIZE "/STACK:4194304")
+	set(STACK_SIZE "LINK_FLAGS /STACK:4194304")
 endif()
 
 # define targets
@@ -46,7 +46,7 @@ target_link_libraries(PSS_estimation
 	PRIVATE gtsam_unstable
 )
 
-set_target_properties(PSS_estimation PROPERTIES 
+set_target_properties(PSS_estimation PROPERTIES
 	LINKER_LANGUAGE CXX
-	LINK_FLAGS ${STACK_SIZE}
+	${STACK_SIZE}
 )

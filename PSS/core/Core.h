@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../PSS_EXPORT.h"
+
 #include "../camera/Camera.h"
 #include "SimulationContext.h"
 #include "../geometry/Pose3.h"
@@ -21,7 +23,7 @@ namespace PSS {
 	 *
 	 * The Core class holds the cameras that make up the motion capture system and provides a basic estimation algorithm.
 	*/
-	class __declspec(dllexport) Core {
+	class PSS_EXPORT Core {
 		CameraMap mCameras;
 
 	public:

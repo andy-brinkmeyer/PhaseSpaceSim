@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../PSS_EXPORT.h"
+
 #include "../geometry/Pose3.h"
 
 #include <Eigen/Core>
@@ -16,7 +18,7 @@ namespace PSS {
 	 * This is done by removing the row of the projection matrix that would correspond to the second sensor dimension. 
 	 * The resulting LinearDetector::ProjectionMatrix is of dimension 2x4.
 	*/
-	class __declspec(dllexport) LinearDetector {
+	class PSS_EXPORT LinearDetector {
 	public:
 		// typedefs
 		/**

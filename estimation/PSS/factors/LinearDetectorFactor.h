@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../../PSS_EXPORT.h"
+
 #include <gtsam/nonlinear/NonlinearFactor.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/inference/Key.h>
@@ -11,7 +13,7 @@
 
 
 namespace PSS {
-	class __declspec(dllexport) LinearDetectorFactor : public gtsam::NoiseModelFactor1<gtsam::Pose3> {
+	class PSS_EXPORT LinearDetectorFactor : public gtsam::NoiseModelFactor1<gtsam::Pose3> {
 		gtsam::Vector1 mMeasurement;
 		LinearDetector::ProjectionMatrix mProjectionMatrix;
 

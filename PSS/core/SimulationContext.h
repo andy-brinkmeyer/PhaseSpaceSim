@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../PSS_EXPORT.h"
+
 #include "../geometry/Rot3.h"
 #include "../geometry/Pose3.h"
 
@@ -59,7 +61,7 @@ namespace PSS {
 	 * This is basically a convenience class that reads the input data and can be passed to a Core object to set up the virtual 
 	 * motion capture system. It also contains some other utility functions for reading measurements and writing results.
 	*/
-	class __declspec(dllexport) SimulationContext {
+	class PSS_EXPORT SimulationContext {
 		// file paths
 		std::string mMetaPath;
 		std::string mMeasuremtsPath;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../PSS_EXPORT.h"
+
 #include <Eigen/Core>
 
 
@@ -12,7 +14,7 @@ namespace PSS {
 	/**
 	 * \brief Class that represents a rotatin in three dimensional space.
 	*/
-	class __declspec(dllexport) Rot3 {
+	class PSS_EXPORT Rot3 {
 		Eigen::Matrix3d mRot;
 
 	public:

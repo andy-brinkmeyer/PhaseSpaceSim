@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../PSS_EXPORT.h"
+
 #include "Rot3.h"
 
 #include <Eigen/Core>
@@ -16,7 +18,7 @@ namespace PSS {
 	 *
 	 * The pose consists of the rotation and position in the local frame.
 	*/
-	class __declspec(dllexport) Pose3 {
+	class PSS_EXPORT Pose3 {
 		Rot3 mRot;
 		Point3 mPos;
 
