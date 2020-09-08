@@ -5,12 +5,6 @@ cmake_minimum_required (VERSION 3.8)
 option(Boost_USE_STATIC_LIBS ON "Use static boost libraries. GTSAM uses static boost libraries on windows by default.")
 find_package(GTSAM REQUIRED)
 
-# for MSVC increase /STACK size
-# GTSAM uses some operations that might lead to stack overflows when our graph grows too large
-if(MSVC)
-	set(STACK_SIZE "LINK_FLAGS /STACK:4194304")
-endif()
-
 # define targets
 add_library(PSS_factors SHARED
 	"PSS/factors/LinearDetectorFactor.h" "PSS/factors/LinearDetectorFactor.cpp")
@@ -46,7 +40,13 @@ target_link_libraries(PSS_estimation
 	PRIVATE gtsam_unstable
 )
 
-set_target_properties(PSS_estimation PROPERTIES
+# for MSVC increase /STACK size
+# GTSAM uses some operations that might lead to stack overflows when our graph grows too large
+if(MSVC)
+	set_target_properties(PSS_estimation PROPERTIES
 	LINKER_LANGUAGE CXX
-	${STACK_SIZE}
-)
+	LINK_FLAGS /STACK:4194304) 
+else()
+	set_target_properties(PSS_estimation PROPERTIES
+	LINKER_LANGUAGE CXX) 
+endif()

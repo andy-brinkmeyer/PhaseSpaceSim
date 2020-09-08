@@ -28,7 +28,7 @@ gyro_noise_dens = 0.008 * deg_rad; % noise density (rad/s/sqrt(Hz))
 
 % Calibration offset of the cameras. Each row i represents the x, y and z
 % position of the i-th camera according to the ordering in meta.json.
-calibratedPositionOffset = zeros(4,3);
+calibratedPositionOffset = zeros(8,3);
 
 % More camera metadata, should be self explanatory.
 fieldOfView = 120; % in degree
