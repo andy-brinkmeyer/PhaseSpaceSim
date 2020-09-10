@@ -16,6 +16,7 @@ build
 # matlab ignores
 /matlab/input/*
 /matlab/output/*
+*.asv
 
 # unity specific ignores
 /unity/[Ll]ibrary/
