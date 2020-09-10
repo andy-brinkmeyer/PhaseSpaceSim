@@ -16,8 +16,6 @@ build
 # matlab ignores
 /matlab/input/*
 /matlab/output/*
-/matlab/visualize_pss_output.m
-/matlab/analyse_results.m
 
 # unity specific ignores
 /unity/[Ll]ibrary/

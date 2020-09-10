@@ -254,10 +254,9 @@ classdef PhaseSpaceSim < handle
         end
         
         function [imuMeasurements] = generateImuMeasurements(obj, useSmoothed)
-            % GENERATEIMUMEASUREMENTS  Create simulated IMU measurements
-            %   and write to output.
-            %   [IMUMEASUREMENTS] = GENERATEIMUMEASUREMENTS(S) Generate with
-            %       smoothed values if S set to true.
+            % GENERATEIMUMEASUREMENTS  Create simulated IMU measurements.
+            %   IMUMEASUREMENTS = GENERATEIMUMEASUREMENTS(S) Generate with
+            %   CREATEIMU(A, G) Create with custom accel and gyro params.
             
             imuMeasurements = struct;
             tableColumns = {'frame', 't', 'markerID', 'cameras', ...
@@ -322,10 +321,6 @@ classdef PhaseSpaceSim < handle
         end
         
         function rmse = RMSE(~, x, xTrue)
-            % RMSE  Compute the root mean square error.
-            %   RMSE = RMSE(A, B) Compute the root mean square error
-            %       between A and B.
-            
            rmse = sqrt(mean((x - xTrue).^2));
         end
     end

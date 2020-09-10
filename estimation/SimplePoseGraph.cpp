@@ -1,3 +1,16 @@
+/**
+	* \brief Executable that runs the estimation.
+	*
+	* The executable takes the following command line arguments:
+	*	- estimation type, "camera" or "graph"
+	*	- metafile path
+	*	- measurements path
+	*	- output path for real-time fixed lag smoother
+	*	- output path for batch optimisation
+	*	- number of frames to skip at the beginning
+	*	- smoothing lag
+*/
+
 #include <PSS/core/SimulationContext.h>
 #include <PSS/core/Core.h>
 #include <PSS/camera/Camera.h>
@@ -195,6 +208,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 
 			// optimize
 			isam->update(*graph, initValues, timestamps);
+			isam->update();
 			result = isam->calculateEstimate();
 
 			// save prev values for next iteration
@@ -264,6 +278,7 @@ int main(int argc, char* argv[]) {
 		simContext.nextMeasurement();
 	}
 
+	// set smoother lag
 	double lag;
 	if (argc >= 8) {
 		lag = atof(argv[7]);
@@ -272,6 +287,7 @@ int main(int argc, char* argv[]) {
 		lag = 10.0;
 	}
 
+	// call appropriate estimation method
 	std::string estimationType{ argv[1] };
 	if (estimationType == "graph") {
 		poseGraph(core, simContext, currentMeasurement, lag, initFrame, argv[5]);

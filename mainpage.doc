@@ -10,4 +10,12 @@
  * The library can be built using CMake. All dependencies are header-only libraries which are included in the source code. Optionally, some 
  * executables that test factor graph based estimation using camera and inertial measurements can also be built. Those depend on GTSAM which needs
  * to be installed seperately. Check out the GTSAM documentation for more information.
+ *
+ * \section getting_started Getting Started
+ *
+ * The easiest way to set up a simulation system is constructing a PSS::SimulationContext instance. This instance can then be passed as an argument to the PSS::Core constructor.
+ * 
+ * Alternatively, create a set of PSS::Camera objects, insert them into a PSS::CameraMap and use the latter to cosntruct a PSS::Core object.
+
+ * To triangulate a marker position use the PSS::Core::estimateFromCameras() method.
  */
