@@ -37,6 +37,7 @@
 #include <string>
 #include <memory>
 #include <fstream>
+#include <map>
 
 
 void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::Measurement& currentMeasurement, double lag, int offset, char* batchFile) {
@@ -80,6 +81,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 	gtsam::noiseModel::Isotropic::shared_ptr velocityNoise{ gtsam::noiseModel::Isotropic::Sigma(3, 0.1) };
 	gtsam::noiseModel::Isotropic::shared_ptr biasNoise{ gtsam::noiseModel::Isotropic::Sigma(6, 0.1) };
 	gtsam::noiseModel::Isotropic::shared_ptr linearDetectorNoise{ gtsam::noiseModel::Isotropic::Sigma(1, 0.00005) };
+	gtsam::noiseModel::Isotropic::shared_ptr rotNoise{ gtsam::noiseModel::Isotropic::Sigma(3, 0.1) };
 
 	// define priors
 	gtsam::Point3 initPos{ currentMeasurement.position };
@@ -95,7 +97,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 	timestamps[V(0)] = 0.0;
 	timestamps[B(0)] = 0.0;
 	batchGraph->addPrior(X(0), initPose, poseNoise);
-	batchGraph->addPrior(V(0), initVel, velocityNoise);
+	batchGraph->addPrior(V(0), initVel, velocityNoise);                                                                
 	batchGraph->addPrior(B(0), imuBias, biasNoise);
 
 	// add initial values
@@ -126,27 +128,14 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 		while (currentMeasurement.valid && currentMeasurement.marker != "Marker_1") {
 			simContext.nextMeasurement();
 		}
+		if (!currentMeasurement.valid) break;
 		// advance variables
 		frame++;
 		dt = currentMeasurement.time - prevTime;
 		std::cout << "Estimating frame " << frame << "\n";
-
+		
 		// preintegrate measurements
-		// double normAccel{ currentMeasurement.accel.norm() };
-		// preintegrationParams->integrationCovariance = (gtsam::I_3x3 * integrationCovFactor * normAccel) + baseIntCov;
-		preintegrated->integrateMeasurement(-currentMeasurement.accel, currentMeasurement.accel, dt);
-
-		// estimate point from camera
-		/*gtsam::Point3 moCapEstimate;
-		bool haveCameraEstimate;
-		try {
-			moCapEstimate = core.estimateFromCameras(currentMeasurement);
-			haveCameraEstimate = true;
-		}
-		catch (PSS::UnderdeterminedSystem e) {
-			std::cout << "Underdetermined Camera System" << "\n";
-			haveCameraEstimate = false;
-		}*/
+		preintegrated->integrateMeasurement(-currentMeasurement.accel, currentMeasurement.angVel, dt);
 
 		// create LinearDetectorFactors
 		bool haveFactor{ false };
@@ -186,10 +175,6 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 			graph->add(biasFactor);
 			batchGraph->add(biasFactor);
 
-			// create MoCap factor
-			/*gtsam::GPSFactor gpsFactor{ X(frame), moCapEstimate, moCapNoise };
-			graph->add(gpsFactor);*/
-
 			// predict next state
 			gtsam::NavState predicted{ preintegrated->predict(prevState, prevBias) };
 
@@ -224,7 +209,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 			timestamps.clear();
 
 			// write estimate
-			simContext.writeEstimate("Marker_1", estimatedPose.translation(), currentMeasurement);
+			simContext.writeEstimate("Marker_1", estimatedPose.translation(), currentMeasurement, estimatedPose.rotation().toQuaternion());
 
 			// advance frame
 			prevFrame = frame;
@@ -236,24 +221,28 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 		prevTime = currentMeasurement.time;
 		simContext.nextMeasurement();
 	}
-
+	
 	std::cout << "Starting batch optimization.\n";
 	gtsam::LevenbergMarquardtOptimizer optimizer{ *batchGraph, *batchValues };
 	gtsam::Values batchResult = optimizer.optimize();
 
 	std::ofstream output{ batchFile };
-	output << "frame,x,y,z\n";
+	output << "frame,x,y,z,q0,q1,q2,q3\n";
 	for (size_t i{ 1 }; i <= frame; i++) {
 		if (batchResult.exists(X(i))) {
 			gtsam::Pose3 resultPose = batchResult.at<gtsam::Pose3>(X(i));
-			output << i+offset << ',' << resultPose.x() << ',' << resultPose.y() << ',' << resultPose.z() << '\n';
+			Eigen::Quaternion<double> q{ resultPose.rotation().toQuaternion() };
+			output << i+offset << ',' << resultPose.x() << ',' << resultPose.y() << ',' << resultPose.z() << ','
+				<< q.w() << ',' << q.x() << ',' << q.y() << ',' << q.z() << '\n';
 		}
 	}
 }
 
+
 void cameraEstimation(PSS::Core& core, PSS::SimulationContext& simContext) {
 	core.simulateCameraOnly(simContext);
 }
+
 
 int main(int argc, char* argv[]) {
 	if (argc < 6) {

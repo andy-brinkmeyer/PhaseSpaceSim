@@ -5,6 +5,7 @@
 
 #include <json/json.hpp>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <fstream>
 #include <string>
@@ -94,7 +95,7 @@ namespace PSS {
 
 		// prepare the output
 		mOutputStream.open(mOutputPath);
-		std::string header{ "frame,t,marker,trueX,trueY,trueZ,x,y,z" };
+		std::string header{ "frame,t,marker,trueX,trueY,trueZ,x,y,z,trueQ0,trueQ1,trueQ2,trueQ3,q0,q1,q2,q3" };
 		mOutputStream << header << std::endl;
 	}
 
@@ -157,11 +158,14 @@ namespace PSS {
 	}
 
 	// output
-	void SimulationContext::writeEstimate(const std::string& marker, const Point3& estimate, const Measurement& measurement) {
+	void SimulationContext::writeEstimate(const std::string& marker, const Point3& point, const Measurement& measurement, const Eigen::Quaternion<double> rot) {
+		Eigen::Quaternion<double> q{ measurement.rotation.quaternion() };
 		std::stringstream outputLine;
 		outputLine << std::to_string(measurement.frame) << ',' << std::to_string(measurement.time) << ',' << marker << ','
 			<< std::to_string(measurement.position.x()) << ',' << std::to_string(measurement.position.y()) << ',' << std::to_string(measurement.position.z()) << ','
-			<< std::to_string(estimate.x()) << ',' << std::to_string(estimate.y()) << ',' << std::to_string(estimate.z()) << std::endl;
+			<< std::to_string(point.x()) << ',' << std::to_string(point.y()) << ',' << std::to_string(point.z()) << ','
+			<< std::to_string(q.w()) << ',' << std::to_string(q.x()) << ',' << std::to_string(q.y()) << ',' << std::to_string(q.z()) << ','
+			<< std::to_string(rot.w()) << ',' << std::to_string(rot.x()) << ',' << std::to_string(rot.y()) << ',' << std::to_string(rot.z()) << '\n';
 		mOutputStream << outputLine.str();
 	}
 }

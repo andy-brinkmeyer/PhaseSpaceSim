@@ -20,4 +20,6 @@ namespace PSS {
 
 	// getters
 	RotationMatrix3 Rot3::matrix() const { return mRot; }
+
+	Eigen::Quaternion<double> Rot3::quaternion() const { return Eigen::Quaternion<double>(mRot); }
 }

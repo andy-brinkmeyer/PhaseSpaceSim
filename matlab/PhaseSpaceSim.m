@@ -58,7 +58,6 @@ classdef PhaseSpaceSim < handle
             % a NED system is used in the PSS library but Unity uses a Y-up
             % system. We need to adjust the rotations to fit the NED
             % system.
-            fromNED = quaternion(1/sqrt(2), -1/sqrt(2), 0, 0);
             
             % iterate through all cameras
             for i = 1:size(obj.metaData.cameras, 1)
@@ -71,16 +70,22 @@ classdef PhaseSpaceSim < handle
                obj.metaData.cameras(i).resolution = resolution;
                
                % rotate camera to NED system
+               fromNED = quaternion(1/sqrt(2), 1/sqrt(2), 0, 0);
                rot = quaternion(obj.metaData.cameras(i).rotation.q0, ...
-                   obj.metaData.cameras(i).rotation.q1, ...
-                   obj.metaData.cameras(i).rotation.q2, ...
-                   obj.metaData.cameras(i).rotation.q3);
-               newRot = fromNED*rot;
+                   -obj.metaData.cameras(i).rotation.q1, ...
+                   obj.metaData.cameras(i).rotation.q3, ...
+                   obj.metaData.cameras(i).rotation.q2);
+               newRot = rot*fromNED;
                [q0, q1, q2, q3] = parts(newRot);
                obj.metaData.cameras(i).rotation.q0 = q0;
                obj.metaData.cameras(i).rotation.q1 = q1;
                obj.metaData.cameras(i).rotation.q2 = q2;
                obj.metaData.cameras(i).rotation.q3 = q3;
+               
+               y = obj.metaData.cameras(i).position.y;
+               z = obj.metaData.cameras(i).position.z;
+               obj.metaData.cameras(i).position.y = -z;
+               obj.metaData.cameras(i).position.z = -y;
                
                % set calibrated camera pose
                if nargin > 5 
@@ -118,9 +123,6 @@ classdef PhaseSpaceSim < handle
             %   COMPUTEKINEMATICS() Compute without smoothing.
             %   COMPUTEKINEMATICS() Compute with smoothing parameter S. 
             
-            % rotation that is used to rotate the mesurements to NED system
-            toNED = quaternion(1/sqrt(2), 1/sqrt(2), 0, 0);
-            
             % iterate through markers
             for j = 1:length(obj.metaData.markers)
                 marker = obj.metaData.markers{j};
@@ -130,10 +132,13 @@ classdef PhaseSpaceSim < handle
                 % assign the input values to object
                 obj.markerKinematics.(marker).t = markerData{:, 't'};
                 obj.markerKinematics.(marker).truePos = ...
-                    rotateframe(toNED, ...
-                        markerData{:, {'x_true', 'y_true', 'z_true'}});
+                        markerData{:, {'x_true', 'z_true', 'y_true'}};
+                obj.markerKinematics.(marker).truePos(:,2) = ...
+                    -obj.markerKinematics.(marker).truePos(:,2);
+                obj.markerKinematics.(marker).truePos(:,3) = ...
+                    -obj.markerKinematics.(marker).truePos(:,3);
                 rotation = markerData{:, {'q0', 'q1', 'q3', 'q2'}};
-                rotation(:,4) = -rotation(:,4);
+                rotation(:,2) = -rotation(:,2);
                 obj.markerKinematics.(marker).trueRot = ...
                         quaternion(rotation);
                 obj.markerKinematics.(marker).frames = ...

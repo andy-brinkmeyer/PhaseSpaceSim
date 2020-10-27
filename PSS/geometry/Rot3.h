@@ -3,6 +3,7 @@
 #include "../../PSS_EXPORT.h"
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 
 namespace PSS {
@@ -47,5 +48,6 @@ namespace PSS {
 
 		// getters
 		RotationMatrix3 matrix() const; /**< \brief Returns the rotation as rotation matrix. */
+		Eigen::Quaternion<double> quaternion() const; /**< \brief Returns the rotation as quaternion. */
 	};
 }

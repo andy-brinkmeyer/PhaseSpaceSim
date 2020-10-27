@@ -33,4 +33,25 @@ namespace PSS {
 
 		gtsam::Vector evaluateError(const gtsam::Pose3& pose, boost::optional<gtsam::Matrix&> H) const;
 	};
+
+	/**
+	 * \brief Class that represents a raw measurement of a linear detector. This factor acts on a position instead of a pose.
+	*/
+	class PSS_EXPORT LinearDetectorFactor2 : public gtsam::NoiseModelFactor1<gtsam::Vector3> {
+		gtsam::Vector1 mMeasurement;
+		LinearDetector::ProjectionMatrix mProjectionMatrix;
+
+	public:
+		/**
+		 * \brief Standard constructor.
+		 *
+		 * \param key Key of the variable the factor is acton on.
+		 * \param measurement Raw linear detector measurement.
+		 * \param projectionMatrix Projection matrix of the linear detector.
+		 * \param noiseModel Noise model of the sensor measurement.
+		*/
+		LinearDetectorFactor2(const gtsam::Key key, const double measurement, const LinearDetector::ProjectionMatrix projectionMatrix, const gtsam::SharedNoiseModel& noiseModel);
+
+		gtsam::Vector evaluateError(const gtsam::Vector3& point, boost::optional<gtsam::Matrix&> H) const;
+	};
 }

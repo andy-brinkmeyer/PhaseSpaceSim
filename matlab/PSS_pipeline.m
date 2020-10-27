@@ -3,14 +3,14 @@
 
 % Input and output directory. The input files must be named
 % measurements.csv and meta.json. The output files will have the same name.
-inputPath = 'input';
-outputPath = 'output';
+inputPath = 'input/paper/complex_cube_2';
+outputPath = 'output/paper/complex_cube_2';
 
 % Define the smoothing params, the higher the lower the smoothing. Each row
 % i represents the x, y and z direction of the i-th marker as ordered in
 % meta.json. If you want to smooth one trajectory individually you can use
 % the smoothSingleTrajectory method. 
-smoothingParams = 0.999999 * ones(1, 3);
+smoothingParams = 0.999999 * ones(3, 3);
 applySmoothing = true;
 
 % Define the IMU parameters. They should be self explanatory.
@@ -31,9 +31,9 @@ gyro_noise_dens = 0.008 * deg_rad; % noise density (rad/s/sqrt(Hz))
 calibratedPositionOffset = zeros(8,3);
 
 % More camera metadata, should be self explanatory.
-fieldOfView = 120; % in degree
-sensorWidth = 0.1; % width of the camera sensors in m
-resolution = 30000; % pixel resolution of the sensors
+fieldOfView = 60; % in degree
+sensorWidth = 0.015; % width of the camera sensors in m
+resolution = 15000; % pixel resolution of the sensors
 sensorVariance = 0.000001; % Variance on measurements in m^2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

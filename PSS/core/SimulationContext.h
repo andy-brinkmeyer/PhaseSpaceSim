@@ -8,6 +8,7 @@
 #include <json/json.hpp>
 #include <csv/csv.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <string>
 #include <vector>
@@ -116,9 +117,10 @@ namespace PSS {
 		 * \brief This is a convenience function that can be used to write a position estimate to the output file.
 		 *
 		 * \param marker ID of the marker whichs position was estimated.
-		 * \param estimate Estimated marker position.
+		 * \param point Estimated marker position.
+		 * \param rot Estimated marker rotation as quaternion [q0 q1 q2 q3].
 		 * \param measurement %Measurement from which the position was estimated.
 		*/
-		void writeEstimate(const std::string& marker, const Point3& estimate, const Measurement& measurement);
+		void writeEstimate(const std::string& marker, const Point3& point, const Measurement& measurement, const Eigen::Quaternion<double> rot = Eigen::Quaternion<double>{ 1.0, 0.0, 0.0, 0.0 });
 	};
 }

@@ -2,15 +2,15 @@
 % A script used to create som visualisations. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-input_filename = 'input/cube_occlusion/out_batch_processed.csv';
+input_filename = 'input/complex_cube_occlusion/out_batch_processed.csv';
 input_data = readtable(input_filename, 'Delimiter', ',');
 marker_1_data = input_data(strcmp(input_data.marker, 'Marker_1'), :);
 
-input_filename_lag = 'input/cube_occlusion/out_lag_10.csv';
+input_filename_lag = 'input/complex_cube_occlusion/out_lag_10.csv';
 input_data_lag = readtable(input_filename_lag, 'Delimiter', ',');
 marker_1_data_lag = input_data_lag(strcmp(input_data_lag.marker, 'Marker_1'), :);
 
-input_filename_cam = 'input/cube_occlusion/out_camera.csv';
+input_filename_cam = 'input/complex_cube_occlusion/out_camera.csv';
 input_data_cam = readtable(input_filename_cam, 'Delimiter', ',');
 marker_1_data_cam = input_data_cam(strcmp(input_data_cam.marker, 'Marker_1'), :);
 
@@ -44,7 +44,7 @@ ax.FontSize = 30;
 xlabel('x Position', 'FontSize', 28)
 ylabel('y Position', 'FontSize', 28)
 zlabel('z Position', 'FontSize', 28)
-legend(["Cam. Only", "Batch", "True Trajectory"])
+legend(["Cam. Only", "Incremental", "True Trajectory"])
 
 figure()
 plot(marker_1_data{:, 'trueX'}, marker_1_data{:, 'trueY'}, ...

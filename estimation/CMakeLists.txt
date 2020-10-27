@@ -45,7 +45,7 @@ target_link_libraries(PSS_estimation
 if(MSVC)
 	set_target_properties(PSS_estimation PROPERTIES
 	LINKER_LANGUAGE CXX
-	LINK_FLAGS /STACK:4194304) 
+	LINK_FLAGS /STACK:8388608) 
 else()
 	set_target_properties(PSS_estimation PROPERTIES
 	LINKER_LANGUAGE CXX) 
