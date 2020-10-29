@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % add the input files as a list
-input_file = "input/paper/complex_cube_1/out_batch_processed.csv";
+input_file = "input/dance/out_batch_processed.csv";
 
 % select the marker for which the analysis should be run
 marker = "Marker_1";

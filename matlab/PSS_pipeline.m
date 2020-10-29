@@ -3,8 +3,8 @@
 
 % Input and output directory. The input files must be named
 % measurements.csv and meta.json. The output files will have the same name.
-inputPath = 'input/paper/complex_cube_2';
-outputPath = 'output/paper/complex_cube_2';
+inputPath = 'input/dance';
+outputPath = 'output/dance';
 
 % Define the smoothing params, the higher the lower the smoothing. Each row
 % i represents the x, y and z direction of the i-th marker as ordered in
