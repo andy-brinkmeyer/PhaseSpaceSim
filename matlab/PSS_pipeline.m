@@ -3,8 +3,8 @@
 
 % Input and output directory. The input files must be named
 % measurements.csv and meta.json. The output files will have the same name.
-inputPath = 'input/dance';
-outputPath = 'output/dance';
+inputPath = 'input/cube_collision';
+outputPath = 'output/cube_collision';
 
 % Define the smoothing params, the higher the lower the smoothing. Each row
 % i represents the x, y and z direction of the i-th marker as ordered in
@@ -32,13 +32,17 @@ calibratedPositionOffset = zeros(8,3);
 
 % More camera metadata, should be self explanatory.
 fieldOfView = 60; % in degree
-sensorWidth = 0.015; % width of the camera sensors in m
-resolution = 15000; % pixel resolution of the sensors
-sensorVariance = 0.000001; % Variance on measurements in m^2.
+sensorWidth = 0.005; % width of the camera sensors in m
+resolution = 3600; % pixel resolution of the sensors
+sensorStd = 10; % Variance on measurements in pixel.
+sensorStdm = 0.0001;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% sensorStdm = (sensorWidth/resolution) * sensorStd;
+sensorVariance = sensorStdm^2;
 
 p = PhaseSpaceSim(inputPath, outputPath);
 p.readInput();

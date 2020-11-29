@@ -60,8 +60,8 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 
 	// define graph
 	std::unique_ptr<gtsam::NonlinearFactorGraph> graph = std::make_unique<gtsam::NonlinearFactorGraph>();
-	// std::unique_ptr<gtsam::ISAM2> isam = std::make_unique<gtsam::ISAM2>();
-	std::unique_ptr<gtsam::IncrementalFixedLagSmoother> isam = std::make_unique<gtsam::IncrementalFixedLagSmoother>(lag);
+	std::unique_ptr<gtsam::ISAM2> isam = std::make_unique<gtsam::ISAM2>();
+	// std::unique_ptr<gtsam::IncrementalFixedLagSmoother> isam = std::make_unique<gtsam::IncrementalFixedLagSmoother>(lag);
 
 	std::unique_ptr<gtsam::NonlinearFactorGraph> batchGraph = std::make_unique<gtsam::NonlinearFactorGraph>();
 
@@ -192,8 +192,7 @@ void poseGraph(PSS::Core& core, PSS::SimulationContext& simContext, const PSS::M
 			batchValues->insert(B(frame), prevBias);
 
 			// optimize
-			isam->update(*graph, initValues, timestamps);
-			isam->update();
+			isam->update(*graph, initValues);
 			result = isam->calculateEstimate();
 
 			// save prev values for next iteration
