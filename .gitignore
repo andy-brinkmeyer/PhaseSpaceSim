@@ -89,3 +89,9 @@ build
 
 # simulation output directory
 /unity/output/*
+
+# Python venv
+*/venv/
+
+# PyCharm
+.idea/
