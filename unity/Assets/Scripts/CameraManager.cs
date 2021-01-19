@@ -54,11 +54,11 @@ public class CameraManager : MonoBehaviour
                             cameraList.Add(camera.name);
                         }
                     }
-                    prevCameraFrame = Convert.ToInt32(currentCameraFrame);
                 }
                 simulationSettings.dataRecorder.WriteMeasurement(frame, time, marker.name, string.Join(";", cameraList), marker.transform.position, marker.transform.rotation.normalized);
             }
         }
+        prevCameraFrame = Convert.ToInt32(currentCameraFrame);
     }
 
     private void Start()

@@ -90,8 +90,13 @@ build
 # simulation output directory
 /unity/output/*
 
-# Python venv
+# Python
 */venv/
+*/__pycache__
 
 # PyCharm
 .idea/
+
+# smoothing
+python/input/
+python/output/
